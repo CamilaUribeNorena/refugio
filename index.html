@@ -131,6 +131,26 @@ nav button.on{color:var(--acc)}
 input.field{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:.55rem .75rem}
 input.field:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .tag{display:inline-block;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);border:1px solid var(--line);border-radius:999px;padding:.1rem .55rem}
+.caution{border:1px solid var(--line);border-radius:16px;padding:.8rem 1rem;margin:.4rem 0 1rem;font-size:.95rem}
+.caution b{display:block;margin-bottom:.2rem}
+.toplinks{display:flex;justify-content:flex-end;gap:1.1rem;margin-bottom:.4rem}
+.toplinks button{color:var(--acc);font-size:.95rem}
+.line{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.9rem 0;border-top:1px solid var(--line)}
+.line:last-of-type{border-bottom:1px solid var(--line)}
+.line div{min-width:0}
+.line b{display:block;font-weight:600}
+.line span{color:var(--ink2);font-size:.92rem}
+.line a{white-space:nowrap;color:var(--onacc);background:var(--acc);border-radius:999px;padding:.5rem 1rem;text-decoration:none;font-weight:600;font-variant-numeric:tabular-nums}
+.qr{display:block;width:180px;max-width:100%;border-radius:12px;background:#fff;padding:8px;margin:.6rem 0}
+ol.howto{padding-left:1.2rem;margin:.4rem 0 1rem}
+ol.howto li{margin-bottom:.3rem}
+.timer{display:flex;flex-direction:column;align-items:center;gap:.6rem;background:var(--bg2);border-radius:22px;padding:1.3rem;margin-top:1rem}
+.timer .t{font-family:'Fraunces',Georgia,serif;font-size:3rem;font-weight:300;font-variant-numeric:tabular-nums;line-height:1}
+.timer p{margin:0;color:var(--ink2);text-align:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.6rem}
+.grid2>div{min-width:0}
+.grid2 h3{font-size:1.02rem;margin:.4rem 0 .3rem}
+@media (max-width:360px){.grid2{grid-template-columns:1fr}}
 .back{color:var(--acc);display:inline-flex;align-items:center;gap:.3rem;margin-bottom:.8rem}
 </style>
 
@@ -168,21 +188,37 @@ const COMBOS=[
  [["Rabia","Vergüenza"],1,"hechos","Rabia con vergüenza suele ser vergüenza disfrazada. Antes de actuar, mira qué pasó de verdad."],
  [["Tristeza","Vacío"],1,"metta","Tristeza y vacío juntos piden bondad, no acción. Empieza por ti."],
  [["Ansiedad","Rabia"],1,"stop","Ansiedad y rabia es el cuerpo en alarma. Frenar es lo único que sirve primero."],
- [["Ansiedad","Cansancio"],1,"respirar","Cansada y en alerta a la vez: el cuerpo no puede descansar con la respiración corta."],
+ [["Ansiedad","Cansancio"],1,"respirar","Cansancio y alerta a la vez: el cuerpo no puede descansar con la respiración corta."],
  [["Tristeza","Cansancio"],1,"opuesta","Tristeza más cansancio piden encerrarse. La acción opuesta, aunque sea pequeña, rompe el círculo."],
  [["Rabia","Tristeza"],1,"rain","Rabia y tristeza juntas suelen ser una pérdida. Atraviésala con RAIN antes de decidir nada."],
  [["Vergüenza","Vacío"],1,"metta","Vergüenza y vacío es la voz que dice que no vales. Metta es la respuesta directa a esa voz."],
  [["Vergüenza","Ansiedad"],1,"hechos","Vergüenza con ansiedad casi siempre es una historia sobre lo que otros piensan. Verifica los hechos."],
- [["Ansiedad","Vacío"],1,"sentidos","Ansiosa y desconectada: primero volver al cuerpo, después pensar."],
+ [["Ansiedad","Vacío"],1,"sentidos","Ansiedad y desconexión: primero volver al cuerpo, después pensar."],
  [["Alegría","Ansiedad"],1,"sabia","Alegría con ansiedad es entusiasmo con miedo. La mente sabia decide qué es real."],
- [["Alegría","Cansancio"],1,"manos","Contenta pero agotada: deja que el cuerpo lo celebre en quieto."],
+ [["Alegría","Cansancio"],1,"manos","Alegría con agotamiento: deja que el cuerpo lo celebre en quieto."],
  [["Calma","Tristeza"],1,"metta","Calma con tristeza es duelo tranquilo. Acompáñalo con bondad."],
  [["Calma","Rabia"],1,"dearman","Rabia con calma es el momento raro en que se puede pedir algo bien. Aprovéchalo."],
  [["Rabia","Cansancio"],1,"tipp","Rabia sin energía se vuelve irritación. Descarga el cuerpo antes de hablar con nadie."],
 ];
+/* segunda salida: combinaciones en las que, además de la práctica, conviene hablar con alguien */
+function riskOf(emos,lvl){
+ const has=e=>emos.includes(e);const neg=emos.filter(e=>e!=="Calma"&&e!=="Alegría");
+ if(!neg.length||lvl<4)return null;
+ if(has("Vacío")&&(has("Vergüenza")||has("Tristeza")))return "Vacío con vergüenza o tristeza, y así de fuerte, es de las combinaciones que no conviene atravesar en soledad.";
+ if(has("Rabia"))return "Rabia así de fuerte empuja a actuar rápido. Hablar con alguien mientras baja ayuda a no decidir en el pico.";
+ if(neg.length>=3)return "Muchas emociones a la vez y con esta fuerza es mucho para cargar con una sola práctica.";
+ if(lvl>=5)return "Con esta intensidad, además de la práctica, puede ayudar escuchar otra voz.";
+ return null;
+}
+function riskCard(msg){return `<div class="caution" style="background:var(--acc-soft);border-color:var(--acc-soft)"><b>Hoy, además, una persona</b>${msg} Puedes llamar o escribir a la Línea Amiga antes, durante o después de la práctica.
+ <div class="line" style="border:0;padding-bottom:.2rem"><div><b>Línea Amiga · Medellín</b><span>(604) 444 4448 · 24 horas</span></div><a href="tel:6044444448">Llamar</a></div>
+ <div class="line" style="border-bottom:0;padding-top:.6rem"><div><b>Por WhatsApp</b><span>300 723 1123</span></div><a href="https://wa.me/573007231123" target="_blank" rel="noopener">Escribir</a></div>
+ <button class="btn ghost" data-go2="ayuda" style="padding:.4rem 0 0">Más líneas y tu contacto de confianza</button></div>`}
+
 function recommend(emos,lvl){
  if(!emos.length)return null;
  if(emos.length>=3&&lvl>=4)return{key:"tipp",why:"Muchas emociones a la vez y fuertes: el cuerpo está desbordado. Primero bajar la intensidad, después entender.",path:"desbordada"};
+ if(lvl>=4&&emos.includes("Rabia"))return{key:"ola",why:"Rabia así de fuerte trae impulsos que piden actuar ya. Nada se decide en el pico de la ola: primero dejarla pasar.",path:"arder"};
  if(lvl>=5&&(emos.includes("Rabia")||emos.includes("Ansiedad")))return{key:"stop",why:"A esta intensidad no se decide nada. Solo frenar.",path:"desbordada"};
  for(const [req,min,key,why] of COMBOS){if(lvl>=min&&req.every(e=>emos.includes(e)))return{key,why}}
  const main=emos.find(e=>e!=="Calma")||emos[0];const [key,why]=SINGLE[main];return{key,why};
@@ -196,7 +232,7 @@ const PRACTICES={
    ["Toma distancia","Da un paso atrás, literal o mental. Respira una vez hondo."],
    ["Observa","¿Qué está pasando afuera? ¿Qué está pasando adentro? Solo mira, sin arreglar."],
    ["Procede con mente sabia","Ahora sí: ¿qué haría la versión tuya que ya vio pasar esto muchas veces?"]]},
- tipp:{n:"TIPP",t:"5 min · DBT",d:"Para bajar la intensidad del cuerpo cuando la mente no puede sola.",steps:[
+ tipp:{n:"TIPP",t:"5 min · DBT",d:"Para bajar la intensidad del cuerpo cuando la mente no puede sola.",caution:"El agua fría baja el ritmo del corazón y el ejercicio intenso lo sube. Si tienes alguna condición del corazón, presión baja, un trastorno de la conducta alimentaria o estás en embarazo, consulta con tu médico antes y, mientras tanto, usa solo la respiración y la relajación muscular.",steps:[
    ["Temperatura","Agua fría en la cara o hielo en las manos por 30 segundos. El cuerpo baja el ritmo de golpe."],
    ["Intensidad","Un minuto de movimiento fuerte: sentadillas, subir escaleras, saltar. Gasta la energía que sobra."],
    ["Pausa en la respiración","Exhala más largo de lo que inhalas. Cinco ciclos."],
@@ -228,7 +264,7 @@ const PRACTICES={
    ["Para alguien neutro","Alguien que ves y no conoces. Las mismas frases. Nota qué cambia."],
    ["Para alguien difícil","Solo si puedes hoy. No es perdonar; es dejar de cargarlo."]]},
  vista:{n:"Vista desde arriba",t:"4 min · estoicismo",d:"Alejar la cámara hasta que lo que te agobia recupere su tamaño real.",steps:[
-   ["Tu cuarto","Imagínate desde el techo. Una persona, una silla, un problema."],
+   ["Tu cuarto","Mírate desde el techo. Una persona, una silla, un problema."],
    ["Tu ciudad","Sube. Miles de personas con sus propios problemas ahora mismo."],
    ["La Tierra","Sube más. Un punto azul. Todo lo que ha pasado, pasó aquí."],
    ["Vuelve","Baja despacio. El problema sigue ahí, pero cabe en la mano."]]},
@@ -246,6 +282,13 @@ const PRACTICES={
    ["Manos","Apóyalas con las palmas hacia arriba, dedos sueltos. Es la postura de quien no pelea."],
    ["Rostro","Relaja la frente, la mandíbula. Deja que la boca se curve apenas, sin forzar."],
    ["Respira","Tres respiraciones así. Nota si algo se ablanda."]]},
+ ola:{n:"Surfear el impulso",t:"10 min · DBT / budismo",d:"Un impulso es una ola: sube, llega a un pico y baja, casi siempre en menos de veinte minutos. No hay que pelear con ella ni obedecerla. Solo quedarse encima mientras pasa.",timer:600,caution:'Si el impulso es hacerte daño, no lo enfrentes solo con la app. <button class="btn ghost" data-go2="ayuda" style="padding:0">Ve a buscar ayuda</button>.',steps:[
+   ["Nómbralo","«Tengo ganas de…» y completa la frase tal cual: mandar ese mensaje, romper algo, gastar, irme, decirlo todo. Nombrarlo lo separa de ti."],
+   ["Ponle un número","¿Qué tan fuerte, de 0 a 10? Vas a volver a preguntarte en unos minutos. El número va a cambiar."],
+   ["Encuéntralo en el cuerpo","¿Dónde vive? Calor en la cara, mandíbula apretada, manos que quieren moverse, pecho acelerado. Obsérvalo como observarías el clima."],
+   ["Respira debajo de la ola","Exhala largo. No tienes que hacer que se vaya. Solo no actuar mientras sube."],
+   ["Míralo bajar","Vuelve al número. Si bajó aunque sea uno, ya lo viste: el impulso no era una orden, era una ola."]]},
+ pros:{n:"Pros y contras",t:"5 min · DBT",d:"Antes de actuar el impulso, ponerlo en papel. La mente en llamas solo ve los pros de actuar y los contras de esperar; aquí se miran los cuatro.",pros:true},
  sabia:{n:"Mente sabia",t:"3 min · DBT",d:"Donde la razón y la emoción se encuentran. Ahí se decide bien.",steps:[
    ["Mente racional","¿Qué dicen los datos? ¿Qué haría alguien que no siente nada por esto?"],
    ["Mente emocional","¿Qué grita la emoción? ¿Qué quiere que hagas ahora mismo?"],
@@ -261,8 +304,9 @@ const PRACTICES={
 };
 
 const PATHS=[
- {k:"desbordada",t:"Estoy desbordada",s:"El cuerpo va a mil, no puedo pensar.",seq:["stop","respirar","tipp"]},
+ {k:"desbordada",t:"Me desborda",s:"El cuerpo va a mil, no puedo pensar.",seq:["stop","respirar","tipp"]},
  {k:"noacepto",t:"No puedo aceptar esto",s:"Algo pasó y sigo peleando con que pasó.",seq:["control","aceptar","vista"]},
+ {k:"arder",t:"Quiero que todo arda",s:"Ganas de romper, mandar ese mensaje, gastar, irme, quemarlo todo. Ya.",seq:["stop","ola","pros"]},
  {k:"emocion",t:"Una emoción fuerte",s:"Tristeza, miedo, rabia, vergüenza: me está llevando.",seq:["rain","hechos","opuesta"]},
 ];
 
@@ -271,26 +315,28 @@ const TRACKS=[
  {k:"budismo",n:"Budismo",s:"Cómo funciona el sufrimiento y cómo se suelta.",lessons:[
   {t:"El dolor y lo que le añadimos",lead:"Vivir duele a veces. Eso no es un fallo tuyo: es la primera verdad.",body:["El Buda no prometió una vida sin dolor. Dijo algo más útil: que el sufrimiento tiene una causa, y que la causa se puede ver. La causa es agarrarse: querer que lo agradable se quede y que lo doloroso se vaya ya.","Cuando peleas contra lo que ya está pasando, añades una segunda capa. El dolor es la flecha; el sufrimiento es la segunda flecha que te lanzas tú al preguntarte por qué a mí, por qué otra vez.","Refugio no quita la primera flecha. Te enseña a no lanzar la segunda."],p:"aceptar"},
   {t:"Todo pasa, también esto",lead:"Impermanencia: nada de lo que sientes ahora va a durar exactamente así.",body:["Míralo en pequeño: una emoción fuerte, sin alimentarla, dura minutos. Lo que la hace durar horas es la historia que le contamos encima.","Esto vale para lo malo y para lo bueno. Por eso el budismo no dice «aférrate a la alegría», dice «disfrútala sabiendo que pasa». Suena triste; en la práctica es lo contrario: se vive más ligero.","Cuando estés en lo peor, prueba a decirte: esto también es impermanente. No como consuelo barato, como dato."],p:"rain"},
-  {t:"Los tres tirones",lead:"Casi toda reacción viene de tres lugares: querer, rechazar, o no ver.",body:["El deseo tira hacia algo. La aversión empuja lejos de algo. La confusión es no darte cuenta de que estás siendo tirada o empujada. Los textos los llaman los tres venenos; funcionan como reflejos.","La atención plena no los elimina. Solo mete un milímetro de espacio entre el tirón y lo que haces con él. Ese milímetro es toda la libertad que hay, y es suficiente.","Ejercicio de un día: cada vez que notes que quieres algo con urgencia o que algo te repele, nómbralo en silencio. Solo eso."],p:"sentidos"},
+  {t:"Los tres tirones",lead:"Casi toda reacción viene de tres lugares: querer, rechazar, o no ver.",body:["El deseo tira hacia algo. La aversión empuja lejos de algo. La confusión es no darte cuenta de que algo te está tirando o empujando. Los textos los llaman los tres venenos; funcionan como reflejos.","La atención plena no los elimina. Solo mete un milímetro de espacio entre el tirón y lo que haces con él. Ese milímetro es toda la libertad que hay, y es suficiente.","Ejercicio de un día: cada vez que notes que quieres algo con urgencia o que algo te repele, nómbralo en silencio. Solo eso."],p:"sentidos"},
   {t:"No eres tus pensamientos",lead:"Un pensamiento es un evento mental. Tú eres quien lo nota.",body:["La mente produce pensamientos como el corazón produce latidos. No los eliges, y no todos son verdad. «Soy un desastre» es un pensamiento; que aparezca no lo convierte en un diagnóstico.","La práctica es sencilla y difícil: cuando aparezca uno, en lugar de discutirlo, ponle una etiqueta. «Juicio». «Recuerdo». «Plan». Y déjalo pasar como un carro que no era el tuyo.","Esto es lo que DBT llama observar y describir. Viene directo del Zen."],p:"respirar"},
-  {t:"Bondad, empezando por ti",lead:"Metta no es sentirse bien. Es la intención de que estés bien, repetida hasta que el cuerpo la crea.",body:["La compasión hacia otros suele salir fácil. Hacia una misma, menos: hay una voz que dice que eso es debilidad o vanidad. La tradición budista lo pone al revés: si no puedes desearte bien a ti, lo que das a otros sale de un pozo vacío.","Las frases son casi tontas de tan simples. Que esté a salvo. Que esté en paz. Se repiten sin esperar sentir nada. El sentir llega después, o no, y da igual: la intención ya hizo su trabajo.","Empieza siempre por ti. Después alguien querido. Después alguien neutro. Alguien difícil, solo cuando puedas."],p:"metta"},
+  {t:"Bondad, empezando por ti",lead:"Metta no es sentirse bien. Es la intención de que estés bien, repetida hasta que el cuerpo la crea.",body:["La compasión hacia otros suele salir fácil. Hacia uno mismo, menos: hay una voz que dice que eso es debilidad o vanidad. La tradición budista lo pone al revés: si no puedes desearte bien a ti, lo que das a otros sale de un pozo vacío.","Las frases son casi tontas de tan simples. Que esté a salvo. Que esté en paz. Se repiten sin esperar sentir nada. El sentir llega después, o no, y da igual: la intención ya hizo su trabajo.","Empieza siempre por ti. Después alguien querido. Después alguien neutro. Alguien difícil, solo cuando puedas."],p:"metta"},
   {t:"El esfuerzo justo",lead:"Un músico le preguntó al Buda cómo meditar. Él le preguntó cómo afinaba su laúd: ni muy tensa la cuerda, ni muy floja.",body:["El recto esfuerzo es uno de los pasos del óctuple sendero. No es esforzarse al máximo: es el esfuerzo que se puede sostener. Una cuerda muy tensa se rompe; una muy floja no suena.","La disciplina que se rompe en tres días casi siempre estaba demasiado tensa. Tres compromisos pequeños sostenidos un año cambian más que diez heroicos durante una semana.","Cuando notes que te exiges como si fueras otra persona, afloja. Cuando notes que te estás dejando ir, aprieta un poco. Ese ajuste diario es la práctica."],p:"sabia"},
  ]},
  {k:"estoicismo",n:"Estoicismo",s:"Dónde poner la fuerza y dónde no gastarla.",lessons:[
-  {t:"Lo que depende de ti",lead:"Hay cosas que están en tus manos y cosas que no. Casi todo el sufrimiento viene de confundirlas.",body:["Epicteto empieza su manual con esto, y todo lo demás cuelga de ahí. Tus juicios, tus intenciones, dónde pones la atención: eso es tuyo. El cuerpo, la reputación, lo que otros hacen, el resultado: eso no.","No es resignación. Es puntería. Si pones toda la fuerza en la primera columna, vives con más poder del que creías; si la pones en la segunda, vives frustrada por diseño.","Cuando algo te agobie, dibuja las dos columnas. Literal, en la app. Casi siempre el peso está en la de la derecha."],p:"control"},
+  {t:"Lo que depende de ti",lead:"Hay cosas que están en tus manos y cosas que no. Casi todo el sufrimiento viene de confundirlas.",body:["Epicteto empieza su manual con esto, y todo lo demás cuelga de ahí. Tus juicios, tus intenciones, dónde pones la atención: eso es tuyo. El cuerpo, la reputación, lo que otros hacen, el resultado: eso no.","No es resignación. Es puntería. Si pones toda la fuerza en la primera columna, vives con más poder del que creías; si la pones en la segunda, vives en frustración por diseño.","Cuando algo te agobie, dibuja las dos columnas. Literal, en la app. Casi siempre el peso está en la de la derecha."],p:"control"},
   {t:"No son las cosas, son los juicios",lead:"Lo que te perturba no es lo que pasó, sino lo que crees sobre lo que pasó.",body:["Alguien no contesta un mensaje. El hecho es ese. «No le importo» es un juicio que se añadió solo. La emoción responde al juicio, no al hecho, y por eso dos personas ante lo mismo sienten cosas distintas.","Esto es exactamente lo que la terapia cognitiva redescubrió dos mil años después, y lo que DBT llama verificar los hechos. Los estoicos ya tenían el manual.","La práctica: separar en dos frases. Lo que pasó. Lo que me dije. Y preguntarle a la segunda si tiene pruebas."],p:"hechos"},
   {t:"Las cuatro virtudes",lead:"Sabiduría, justicia, coraje, templanza. No como ideales: como brújula para decidir hoy.",body:["Los estoicos pensaban que lo único realmente bueno es el carácter, porque es lo único que nadie te puede quitar. Todo lo demás (salud, dinero, afecto) es preferible, pero no es tuyo.","Las cuatro son preguntas. ¿Qué es verdad aquí? (sabiduría). ¿Qué es justo con los demás? (justicia). ¿Qué me da miedo hacer y debo hacer igual? (coraje). ¿Dónde estoy de más? (templanza).","Cuando no sepas qué hacer, pásale la decisión por las cuatro. Rara vez salen empatadas."],p:"sabia"},
-  {t:"Ensayar lo peor, en calma",lead:"Imaginar lo que podría salir mal no es pesimismo. Es quitarle a la sorpresa su poder.",body:["Séneca lo hacía cada mañana: lo que hoy puede pasar, que no me encuentre sin haberlo pensado. No para angustiarse, sino para llegar preparada y, a menudo, para descubrir que lo temido es más manejable de lo que la ansiedad pintaba.","Lo hacían también con lo que tenían: mirar a las personas queridas sabiendo que no son eternas. Suena duro; produce lo contrario, gratitud por el hoy.","La diferencia con la rumiación es la calma. Se hace sentada, con tiempo, una sola vez. No en bucle a las tres de la mañana."],p:"premeditatio"},
-  {t:"La intención de la mañana",lead:"Marco Aurelio empezaba el día recordándose qué le tocaba hacer y qué tipo de gente se iba a encontrar. Así nada lo tomaba por sorpresa.",body:["Las Meditaciones son, en buena parte, notas de un hombre organizando su mente antes de trabajar. No escribía metas: escribía a qué volver cuando el día se torciera.","La atención estoica (prosoche) es eso: saber en cada momento qué está en tus manos ahora. Una sola intención escrita en la mañana le da a la mente un lugar al que regresar.","Que sea corta y que dependa de ti. «Que me salga bien la reunión» no depende de ti. «Llegar preparada y escuchar antes de responder» sí."],p:"control"},
+  {t:"Ensayar lo peor, en calma",lead:"Imaginar lo que podría salir mal no es pesimismo. Es quitarle a la sorpresa su poder.",body:["Séneca lo hacía cada mañana: lo que hoy puede pasar, que no me encuentre sin haberlo pensado. No para angustiarse, sino para llegar con preparación y, a menudo, para descubrir que lo temido es más manejable de lo que la ansiedad pintaba.","Lo hacían también con lo que tenían: mirar a las personas queridas sabiendo que no son eternas. Suena duro; produce lo contrario, gratitud por el hoy.","La diferencia con la rumiación es la calma. Se hace en quietud, con tiempo, una sola vez. No en bucle a las tres de la mañana."],p:"premeditatio"},
+  {t:"La ira y la demora",lead:"Séneca escribió un libro entero sobre la ira y llegó a una conclusión práctica: su mejor remedio es esperar.",body:["Para Séneca la ira es una locura breve: mientras dura no se ve nada más, y lo que se hace bajo ella cuesta reparar durante años. No proponía no sentirla, sino no darle las manos.","Su consejo era casi físico: cuando llegue, no hagas nada todavía. Deja pasar el primer golpe. La ira tiene prisa porque sabe que con tiempo se debilita.","Hoy se sabe lo mismo por otro lado: la activación del cuerpo baja en minutos si no se alimenta. Esperar no es debilidad. Es negarse a que el peor momento decida por ti."],p:"ola"},
+  {t:"La intención de la mañana",lead:"Marco Aurelio empezaba el día recordándose qué le tocaba hacer y qué tipo de gente se iba a encontrar. Así nada lo tomaba por sorpresa.",body:["Las Meditaciones son, en buena parte, notas de un hombre organizando su mente antes de trabajar. No escribía metas: escribía a qué volver cuando el día se torciera.","La atención estoica (prosoche) es eso: saber en cada momento qué está en tus manos ahora. Una sola intención escrita en la mañana le da a la mente un lugar al que regresar.","Que sea corta y que dependa de ti. «Que me salga bien la reunión» no depende de ti. «Llegar con todo listo y escuchar antes de responder» sí."],p:"control"},
   {t:"La revisión de la noche",lead:"Antes de dormir, Séneca se preguntaba: ¿qué hice hoy? ¿qué mal curé? ¿en qué soy mejor?",body:["No es un juicio sino un inventario amable. Lo que estuvo en mis manos y cómo lo usé. Lo que no estuvo y aun así cargué. Lo que hubo de bueno, aunque fuera pequeño.","La regla es no castigarse: «te perdono por hoy, pero mañana mira eso». Con ese tono, la revisión se vuelve un lugar al que quieres volver en lugar de una lista de fallos.","Es la pantalla Noche de esta app. Tres preguntas, respuestas cortas."],p:"vista"},
  ]},
  {k:"dbt",n:"DBT",s:"Habilidades concretas para emociones que llegan muy fuerte.",lessons:[
-  {t:"Aceptar y cambiar, a la vez",lead:"La dialéctica es sostener dos cosas verdaderas que parecen contrarias: estoy haciendo lo mejor que puedo, y necesito hacerlo mejor.",body:["Marsha Linehan diseñó DBT para personas cuyas emociones llegan más rápido, más alto y bajan más lento. Descubrió que solo empujar al cambio las hacía sentir invalidadas, y que solo aceptar las dejaba atascadas. La respuesta fue las dos cosas.","De ahí vienen las cuatro áreas: atención plena (del Zen), tolerancia al malestar y aceptación radical (también del Zen), regulación emocional y efectividad interpersonal (de la terapia conductual).","Cuando te sientas partida en dos, sospecha que hay una dialéctica: dos verdades peleando por ser la única."],p:"aceptar"},
+  {t:"Aceptar y cambiar, a la vez",lead:"La dialéctica es sostener dos cosas verdaderas que parecen contrarias: estoy haciendo lo mejor que puedo, y necesito hacerlo mejor.",body:["Marsha Linehan diseñó DBT para personas cuyas emociones llegan más rápido, más alto y bajan más lento. Descubrió que solo empujar al cambio las hacía sentir invalidadas, y que solo aceptar las dejaba atascadas. La respuesta fue las dos cosas.","De ahí vienen las cuatro áreas: atención plena (del Zen), tolerancia al malestar y aceptación radical (también del Zen), regulación emocional y efectividad interpersonal (de la terapia conductual).","Cuando sientas que te partes en dos, sospecha que hay una dialéctica: dos verdades peleando por ser la única."],p:"aceptar"},
   {t:"Mente sabia",lead:"Hay una mente que solo piensa y una que solo siente. La sabia es donde se encuentran.",body:["La mente racional sabe los datos pero no sabe qué importa. La emocional sabe qué importa pero exagera los datos. Ninguna decide bien sola.","La mente sabia no es un compromiso tibio entre las dos: es una tercera cosa, una certeza tranquila que se siente en el cuerpo, muchas veces en el pecho o el estómago. Todo el mundo la ha sentido alguna vez.","La práctica es preguntar y esperar. No forzar la respuesta. Si viene con urgencia y ruido, era la emocional disfrazada."],p:"sabia"},
   {t:"Observar, describir, participar",lead:"Tres formas de estar presente, y tres formas de hacerlo: sin juzgar, una cosa a la vez, con eficacia.",body:["Observar es notar sin palabras. Describir es ponerle palabras solo a lo que se observa: «tensión en la mandíbula», no «estoy fatal». Participar es meterse del todo en lo que se hace, sin narrarlo.","Sin juzgar no es no evaluar: es cambiar «esto es horrible» por «esto es doloroso y no lo quiero». El juicio añade la segunda flecha del budismo.","Una cosa a la vez, y con eficacia: hacer lo que funciona, no lo que tendría razón."],p:"sentidos"},
   {t:"Las emociones tienen función",lead:"Ninguna emoción es un error. Cada una lleva un mensaje y un impulso; a veces el impulso ya no sirve.",body:["El miedo protege y pide huir. La rabia defiende y pide atacar. La tristeza señala pérdida y pide recogerse. La vergüenza cuida el lugar en el grupo y pide esconderse. Todo eso fue útil alguna vez.","Regular no es apagar. Es preguntar si el mensaje encaja con los hechos y si el impulso ayuda hoy. Si encaja, se escucha. Si no encaja, se hace lo opuesto, y la emoción baja porque la acción le contradice.","Por eso Refugio te pregunta con qué emociones llegas: la combinación dice mucho de cuál práctica te va a servir."],p:"opuesta"},
   {t:"Sobrevivir la crisis sin empeorarla",lead:"Hay momentos en que no se puede resolver nada. El objetivo es solo no hacer algo de lo que te arrepientas.",body:["Tolerancia al malestar es el conjunto de habilidades para esos momentos. No son elegantes: agua fría, ejercicio intenso, respiración larga, distraerse a propósito. Bajan la activación del cuerpo cuando la mente no puede.","La lógica es fisiológica: el cuerpo no puede sostener una alarma a tope más de unos minutos si dejas de alimentarla. TIPP y STOP le dan esos minutos.","Después, cuando baje, sí se piensa. Nunca antes."],p:"tipp"},
-  {t:"Pedir sin romper",lead:"Se puede pedir lo que necesitas, cuidar la relación y cuidarte a ti. Las tres cosas, con orden.",body:["Antes de hablar, decide qué importa más esta vez: conseguir lo que pides, conservar la relación, o conservar tu respeto propio. Casi nunca se puede maximizar las tres; saber cuál va primero evita salir de la conversación sintiéndote traicionada.","DEAR MAN es la habilidad para el objetivo. Se suma la validación para la relación (mostrar que entiendes al otro) y la honestidad sin disculpas de más para el respeto propio.","Se ensaya. En voz alta, sola, antes. Suena raro y funciona."],p:"dearman"},
+  {t:"Pedir sin romper",lead:"Se puede pedir lo que necesitas, cuidar la relación y cuidarte a ti. Las tres cosas, con orden.",body:["Antes de hablar, decide qué importa más esta vez: conseguir lo que pides, conservar la relación, o conservar tu respeto propio. Casi nunca se puede maximizar las tres; saber cuál va primero evita salir de la conversación con la sensación de haberte traicionado.","DEAR MAN es la habilidad para el objetivo. Se suma la validación para la relación (mostrar que entiendes al otro) y la honestidad sin disculpas de más para el respeto propio.","Se ensaya. En voz alta, a solas, antes. Suena raro y funciona."],p:"dearman"},
+  {t:"El impulso es una ola",lead:"Querer que todo arda no te convierte en alguien destructivo. Es una emoción con un impulso muy fuerte, y los impulsos pasan.",body:["En el trastorno límite la impulsividad no es falta de carácter: las emociones suben más rápido y más alto, y el impulso llega antes que la pausa. DBT no pide que no lo sientas. Pide que entre el impulso y la acción haya un espacio, aunque sea de minutos.","Tres herramientas para ese espacio. STOP frena el cuerpo. Surfear el impulso, que viene de la atención plena budista, te enseña a quedarte encima de la ola sin obedecerla. Pros y contras le recuerda a la mente lo que en el pico no puede ver: las consecuencias de mañana.","Una regla simple ayuda mucho: nada irreversible en caliente. Ningún mensaje que no se pueda borrar, ninguna renuncia, ninguna compra grande, nada que rompa algo. Si mañana sigues queriéndolo, mañana lo decides."],p:"ola"},
   {t:"Disciplina sin castigo",lead:"La disciplina no se construye con fuerza de voluntad. Se construye con cosas pequeñas que se repiten, y con volver después de fallar.",body:["DBT tiene una habilidad que se llama construir dominio: hacer cada día una cosa un poco difícil, a propósito, para que el cuerpo acumule pruebas de que puedes. No tiene que ser grande. Tiene que ser diaria.","Con emociones intensas aparece el todo o nada: si no lo hice perfecto, no cuenta, y si ayer fallé, ya se perdió. Por eso Rumbo no tiene rachas. Cada compromiso tiene una versión mínima para los días malos, y lo que se cuenta es cuántas veces volviste.","La base física también es disciplina: dormir parecido cada noche, comer a horas, moverse, cuidar el cuerpo cuando está enfermo y evitar lo que altera el ánimo. DBT lo llama PLEASE. Una mente desordenada casi siempre viene de un cuerpo sin rutina.","Cuando no haya ganas, haz la versión mínima igual. Eso es acción opuesta: la falta de ganas pide quedarse quieta, y moverse un poco la desarma."],p:"opuesta"},
  ]},
 ];
@@ -307,6 +353,15 @@ const nowT=()=>{const d=new Date();return pad(d.getHours())+":"+pad(d.getMinutes
 const fmt=d=>new Date(d+"T12:00").toLocaleDateString("es-CO",{weekday:"long",day:"numeric",month:"short"});
 const lista=a=>a.length<2?a.join("").toLowerCase():a.slice(0,-1).join(", ").toLowerCase()+" y "+a[a.length-1].toLowerCase();
 const label=k=>PRACTICES[k]?PRACTICES[k].n:((PATHS.find(p=>p.k===k)||{}).t||k);
+
+/* ---------- compartir y ayuda ---------- */
+const APP_URL="https://camilauribenorena.github.io/refugio/";
+const LINES=[
+ ["Línea 106","Salud mental, 24 horas. Escucha y orientación.","106"],
+ ["Línea 123","Emergencias, si hay peligro inmediato.","123"],
+ ["Línea Amiga Saludable · Medellín","(604) 444 4448 · 24 horas","6044444448"],
+ ["Línea Amiga por WhatsApp · Medellín","300 723 1123","wa:573007231123"],
+];
 
 /* ---------- rumbo (disciplina) ---------- */
 const HABIT_EX=[
@@ -338,12 +393,19 @@ let view="hoy", sub=null, sub2=null, stepIdx=0, pStep=0, sel={emos:[],lvl:null},
 const app=document.getElementById("app");
 const $=s=>document.querySelector(s);
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),1800)}
-function go(v,s=null,s2=null){view=v;sub=s;sub2=s2;stepIdx=0;pStep=0;stopBreath();render();window.scrollTo(0,0)}
+function go(v,s=null,s2=null){if(v!==view||s!==sub)stopTimer();view=v;sub=s;sub2=s2;stepIdx=0;pStep=0;stopBreath();render();window.scrollTo(0,0)}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 
 /* ---------- registros ---------- */
 /* guarda la dicotomía del control si hay algo escrito en pantalla */
+function savePros(){
+ const g=i=>{const e=$("#pc"+i);return e?e.value.trim():""};if(!$("#pc0"))return;
+ const v=[0,1,2,3,4].map(g);if(!v.some(Boolean))return;
+ const c=store.get("proscontras",[]);c.push({d:todayKey(),t:nowT(),i:v[0],p1:v[1],c1:v[2],p2:v[3],c2:v[4]});store.set("proscontras",c);
+ [0,1,2,3,4].forEach(i=>{const e=$("#pc"+i);if(e)e.value=""});
+}
 function saveControl(){
+ savePros();
  const a=$("#w1"),b=$("#w2");if(!a||!b)return;
  const va=a.value.trim(),vb=b.value.trim();if(!va&&!vb)return;
  const c=store.get("control",[]);c.push({d:todayKey(),t:nowT(),a:va,b:vb});store.set("control",c);
@@ -366,6 +428,7 @@ async function exportCSV(){
  const rows=[];
  store.get("checkins",[]).forEach(c=>rows.push(["llegada",c.d,c.t||"",c.emos.join("|"),c.lvl,"","","",c.note||"","",""]));
  store.get("sessions",[]).forEach(s=>rows.push(["practica",s.d,s.t,s.emos.join("|"),"",label(s.key),s.before,s.after,"","",""]));
+ store.get("proscontras",[]).forEach(c=>rows.push(["pros_contras",c.d,c.t,"","",c.i,"","","Actuar: pros "+c.p1+" / contras "+c.c1,"Esperar: pros "+c.p2+" / contras "+c.c2,""]));
  store.get("control",[]).forEach(c=>rows.push(["control",c.d,c.t,"","","Dicotomía del control","","",c.a,c.b,""]));
  Object.entries(store.get("intents",{})).forEach(([d,v])=>rows.push(["intencion",d,"","","","","","",v,"",""]));
  {const hs=habits();Object.entries(ticks()).forEach(([d,o])=>Object.entries(o).forEach(([id,v])=>{const h=hs.find(x=>x.id===id);rows.push(["compromiso",d,"","","",h?h.n:id,"","",v==="full"?"hecho":v==="min"?"minimo":"no","",""])}))}
@@ -390,7 +453,7 @@ async function exportCSV(){
 }
 
 /* ---------- copia de seguridad ---------- */
-const KEYS=["checkins","sessions","control","nights","lessons","habits","ticks","intents"];
+const KEYS=["proscontras","checkins","sessions","control","nights","lessons","habits","ticks","intents"];
 async function shareOrDownload(name,text,type){
  const blob=new Blob([text],{type});
  try{const f=new File([blob],name,{type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"Refugio"});return}}catch(e){if(e&&e.name==="AbortError")return}
@@ -405,6 +468,15 @@ function restore(file){if(!file)return;const r=new FileReader();r.onload=()=>{
 
 /* ---------- respiración ---------- */
 let breathTimer=null;
+/* temporizador de espera (sigue corriendo entre pasos) */
+let timerEnd=null,timerTick=null;
+const fmtT=sec=>Math.floor(sec/60)+":"+pad(sec%60);
+const timerLeft=total=>timerEnd?Math.max(0,Math.round((timerEnd-Date.now())/1000)):total;
+function startTimer(total){timerEnd=Date.now()+total*1000;runTimer();render()}
+function runTimer(){clearInterval(timerTick);timerTick=setInterval(()=>{const el=$("#tmr");const left=timerLeft(0);
+ if(el)el.textContent=fmtT(left);
+ if(left<=0){clearInterval(timerTick);timerEnd=null;if($("#tmrl"))$("#tmrl").textContent="Pasaron diez minutos. ¿Qué número tiene ahora el impulso?";const b=$("#tstart");if(b){b.textContent="Otra vez";}try{navigator.vibrate&&navigator.vibrate(300)}catch(e){}}},500)}
+function stopTimer(){clearInterval(timerTick);timerEnd=null}
 function startBreath(){
  const orb=$("#orb"),lbl=$("#blbl");if(!orb)return;
  let phase="in";const cyc=()=>{
@@ -418,10 +490,12 @@ function stopBreath(){if(breathTimer){clearTimeout(breathTimer);breathTimer=null
 
 /* ---------- pantallas ---------- */
 function render(){
- app.innerHTML=({hoy:vHoy,ahora:vAhora,practicas:vPract,rumbo:vRumbo,aprender:vAprender,noche:vNoche,despues:vDespues})[view]();
+ if(!store.get("aviso",false)&&view!=="ayuda")view="acerca";
+ app.innerHTML=({hoy:vHoy,ahora:vAhora,practicas:vPract,rumbo:vRumbo,ayuda:vAyuda,acerca:vAcerca,aprender:vAprender,noche:vNoche,despues:vDespues})[view]();
  renderNav();bind();
 }
 function renderNav(){
+ $("#nav").hidden=!store.get("aviso",false);
  const items=[["hoy","Hoy",'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'],
   ["ahora","Ahora",'<path d="M12 21s-7-4.5-7-11a7 7 0 0 1 14 0c0 6.5-7 11-7 11z"/>'],
   ["rumbo","Rumbo",'<path d="M12 3v18M5 8l7-5 7 5"/><circle cx="12" cy="14" r="2.5"/>'],
@@ -441,15 +515,17 @@ function todayDone(){
 function vHoy(){
  const day=Math.floor(Date.now()/864e5);const [q,by]=QUOTES[day%QUOTES.length];
  const checks=store.get("checkins",[]);const today=checks.find(c=>c.d===todayKey());
- const head=`<p class="eyebrow">${greet()}</p><h1>Refugio</h1><p class="quote">${q}</p><p class="quote-by">${by}</p>`;
+ const head=`<div class="toplinks"><button data-go2="ayuda">Ayuda</button><button data-go="acerca">Acerca de</button></div><p class="eyebrow">${greet()}</p><h1>Refugio</h1><p class="quote">${q}</p><p class="quote-by">${by}</p>`;
  if(today&&sub!=="edit"){
   const r=recommend(today.emos,today.lvl);const p=PRACTICES[r.key];
   return head+`<h3>Hoy llegaste con ${lista(today.emos)}, ${today.lvl} de 5.</h3>
   ${today.note?`<p class="muted">«${esc(today.note)}»</p>`:""}
   <div class="week">${weekBar(checks)}</div>${todayDone()}
   <div class="why">${r.why}</div>
+  ${(()=>{const rk=riskOf(today.emos,today.lvl);return rk&&today.lvl>=5?riskCard(rk):""})()}
   <button class="path" data-pract="${r.key}"><h3>${p.n}</h3><span>${p.t}</span></button>
   ${r.path?`<button class="path" data-path="${r.path}"><h3>O el camino completo</h3><span>Tres prácticas seguidas, guiadas.</span></button>`:""}
+  ${(()=>{const rk=riskOf(today.emos,today.lvl);return rk&&today.lvl<5?riskCard(rk):""})()}
   <button class="btn ghost" data-edit="1">Cambiar cómo llegué hoy</button>`;
  }
  return head+`<h3>¿Cómo llegas hoy?</h3><p class="muted">Puedes marcar varias. Casi siempre son varias.</p>
@@ -473,11 +549,23 @@ function vAhora(){
  return `<p class="eyebrow">Ahora mismo</p><h1>Estoy aquí.</h1>
  <p style="margin:1rem 0 1.4rem">No tienes que resolver nada todavía. Elige lo que más se parece a lo que pasa.</p>
  ${PATHS.map(p=>`<button class="path" data-path="${p.k}"><h3>${p.t}</h3><span>${p.s}</span></button>`).join("")}
- <p class="muted" style="margin-top:1.4rem">Si estás en peligro o piensas en hacerte daño, esto no reemplaza a una persona. Llama a alguien de confianza o a la Línea 106 (Colombia).</p>`;
+ <button class="path" data-go2="ayuda" style="margin-top:1rem;background:var(--acc-soft)"><h3>Necesito a una persona</h3><span>Si piensas en hacerte daño o alguien corre peligro: líneas de ayuda y tu contacto de confianza.</span></button>`;
 }
 
 function practBody(p){
  if(p.breath)return `<p>${p.d}</p><div class="breath"><div class="orb" id="orb"></div><p id="blbl">Cuando quieras</p><button class="btn soft" id="bstart">Empezar</button></div>`;
+ if(p.pros){
+  const hist=store.get("proscontras",[]).slice(-3).reverse();
+  const box=(id,t,ph)=>`<div><h3>${t}</h3><textarea id="${id}" rows="3" placeholder="${ph}"></textarea></div>`;
+  return `<p>${p.d}</p>
+  <h3 style="margin-top:.8rem">El impulso</h3><textarea id="pc0" rows="1" placeholder="Tengo ganas de…"></textarea>
+  <p class="muted small" style="margin:.8rem 0 0">Si lo hago ahora:</p>
+  <div class="grid2">${box("pc1","Pros","Alivio, que sepa lo que siento…")}${box("pc2","Contras","Mañana, la relación, la plata, yo…")}</div>
+  <p class="muted small" style="margin:.8rem 0 0">Si espero y no lo hago:</p>
+  <div class="grid2">${box("pc3","Pros","Me respeto, no tengo que reparar…")}${box("pc4","Contras","Me quedo con la rabia un rato…")}</div>
+  <p class="muted" style="margin-top:.8rem">Mira sobre todo la columna de contras de actuar. Casi siempre ahí está lo que te importa a largo plazo. Se guarda al salir.</p>
+  ${hist.length?`<h3 style="margin-top:1.4rem">Anteriores</h3>`+hist.map(c=>`<div class="entry"><b>${fmt(c.d)} · ${c.t}${c.i?" · "+esc(c.i):""}</b>${c.c1?`<span>Contras de actuar: </span>${esc(c.c1)}<br>`:""}${c.p2?`<span>Pros de esperar: </span>${esc(c.p2)}`:""}</div>`).join(""):""}`;
+ }
  if(p.write){
   const hist=store.get("control",[]).slice(-5).reverse();
   return `<p>${p.d}</p>
@@ -487,9 +575,10 @@ function practBody(p){
   ${hist.length?`<h3 style="margin-top:1.4rem">Anteriores</h3>`+hist.map(c=>`<div class="entry"><b>${fmt(c.d)} · ${c.t}</b>${c.a?`<span>Depende de mí: </span>${esc(c.a)}<br>`:""}${c.b?`<span>No depende: </span>${esc(c.b)}`:""}</div>`).join(""):""}`;
  }
  const s=p.steps[pStep];
- return `<p>${p.d}</p><div class="step"><h3>${s[0]}</h3><p>${s[1]}</p>
+ return `<p>${p.d}</p>${p.caution?`<div class="caution"><b>Antes de empezar</b>${p.caution}</div>`:""}<div class="step"><h3>${s[0]}</h3><p>${s[1]}</p>
   <div class="dots">${p.steps.map((_,i)=>`<i class="${i===pStep?"on":""}"></i>`).join("")}</div>
-  <div class="row">${pStep>0?`<button class="btn ghost" id="pPrev">Atrás</button>`:""}${pStep<p.steps.length-1?`<button class="btn soft" id="pNext">Siguiente paso</button>`:`<span class="muted">Fin de la práctica.</span>`}</div></div>`;
+  <div class="row">${pStep>0?`<button class="btn ghost" id="pPrev">Atrás</button>`:""}${pStep<p.steps.length-1?`<button class="btn soft" id="pNext">Siguiente paso</button>`:`<span class="muted">Fin de la práctica.</span>`}</div></div>
+  ${p.timer?`<div class="timer"><span class="t" id="tmr">${fmtT(timerLeft(p.timer))}</span><p id="tmrl">${timerEnd?"Quédate encima. No tienes que hacer nada.":"Diez minutos sin actuar. Puedes seguir los pasos mientras corre."}</p><button class="btn soft" id="tstart">${timerEnd?"Detener":"Empezar la espera"}</button></div>`:""}`;
 }
 
 function vRumbo(){
@@ -509,7 +598,7 @@ function vRumbo(){
  ${missedYesterday()&&!done?`<div class="why">Ayer no se pudo con todo. Eso ya pasó y no se arregla hoy; hoy solo toca volver, aunque sea con la versión mínima.</div>`:""}
  <h3 style="margin-top:1.4rem">Intención de hoy</h3>
  <p class="muted small" style="margin:.2rem 0 .5rem">¿Qué depende de mí hoy? Una frase.</p>
- <textarea id="intent" rows="2" placeholder="Llegar preparada y escuchar antes de responder.">${esc(it)}</textarea>
+ <textarea id="intent" rows="2" placeholder="Llegar con todo listo y escuchar antes de responder.">${esc(it)}</textarea>
  <div class="row"><button class="btn soft" id="saveIntent">${it?"Actualizar":"Guardar intención"}</button></div>
  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:1.8rem;gap:1rem"><h3>Compromisos</h3><span class="muted small" style="font-variant-numeric:tabular-nums">${done} de ${hs.length} hoy</span></div>
  ${hs.some(h=>h.ex)?`<p class="small" style="margin:.3rem 0 0"><span class="tag">Ejemplos</span> <span class="muted">Cámbialos por los tuyos.</span></p>`:""}
@@ -519,7 +608,43 @@ function vRumbo(){
   <div class="tri"><button class="${v==="full"?"on full":""}" data-tick="${h.id}:full">Hecho</button><button class="${v==="min"?"on min":""}" data-tick="${h.id}:min">Lo mínimo</button><button class="${v==="no"?"on no":""}" data-tick="${h.id}:no">Hoy no</button></div>
   <div class="days" aria-label="Últimos 7 días">${days}<small>${st.week}/7${st.back?` · volviste ${st.back} ${st.back===1?"vez":"veces"}`:""}</small></div></div>`}).join("")}</div>
  <div class="row"><button class="btn ghost" data-hedit="1">Cambiar mis compromisos</button></div>
- <button class="path" data-lesson="dbt:6" style="margin-top:1.2rem"><h3>Disciplina sin castigo</h3><span>Por qué funciona así · 2 min</span></button>`;
+ <button class="path" data-lesson="dbt:7" style="margin-top:1.2rem"><h3>Disciplina sin castigo</h3><span>Por qué funciona así · 2 min</span></button>`;
+}
+
+function vAyuda(){
+ const c=store.get("contacto",{n:"",t:""});
+ const link=(v)=>v.startsWith("wa:")?`https://wa.me/${v.slice(3)}`:`tel:${v}`;
+ return `<button class="back" data-go="${sub||"hoy"}">‹ Volver</button><p class="eyebrow">Cuándo buscar ayuda</p><h1>Pedir ayuda también es una habilidad.</h1>
+ <p style="margin-top:1rem">Busca a una persona ahora mismo, no después, si piensas en hacerte daño o en morir, si sientes que vas a perder el control, si no reconoces la realidad o si alguien corre peligro.</p>
+ <h3 style="margin-top:1.4rem">Una persona de confianza</h3>
+ ${c.t?`<div class="line"><div><b>${esc(c.n||"Mi persona")}</b><span>${esc(c.t)}</span></div><a href="tel:${esc(c.t.replace(/[^0-9+]/g,""))}">Llamar</a></div>`:`<p class="muted small" style="margin:.3rem 0 .4rem">Guarda el número de alguien a quien puedas llamar en un mal momento. Se queda solo en este teléfono.</p>`}
+ <div class="row"><input class="field" id="cn" placeholder="Nombre" value="${esc(c.n)}" style="flex:1;min-width:8rem"><input class="field" id="ct" placeholder="Teléfono" inputmode="tel" value="${esc(c.t)}" style="flex:1;min-width:8rem"></div>
+ <div class="row"><button class="btn soft" id="saveContact">Guardar contacto</button></div>
+ <h3 style="margin-top:1.6rem">Líneas en Colombia</h3>
+ ${LINES.map(([n,d,v])=>`<div class="line"><div><b>${n}</b><span>${d}</span></div><a href="${link(v)}" ${v.startsWith("wa:")?'target="_blank" rel="noopener"':""}>${v.startsWith("wa:")?"Escribir":"Llamar"}</a></div>`).join("")}
+ <p class="muted small" style="margin-top:1rem">Fuera de Colombia, marca el número de emergencias de tu país. Refugio acompaña la práctica, pero en una crisis lo que ayuda es una persona.</p>`;
+}
+
+function vAcerca(){
+ const first=!store.get("aviso",false);
+ return `${first?"":`<button class="back" data-go="hoy">‹ Volver</button>`}<p class="eyebrow">${first?"Te damos la bienvenida":"Acerca de"}</p><h1>Refugio</h1>
+ <p style="margin-top:1rem">Una app para practicar habilidades de DBT, estoicismo y budismo: notar cómo llegas, bajar la intensidad cuando todo va muy rápido, sostener compromisos pequeños y revisar el día antes de dormir.</p>
+ <div class="caution"><b>Lo que Refugio no es</b>No es un tratamiento, no hace diagnósticos y no reemplaza a un psicólogo, psiquiatra o terapeuta de DBT. Sirve para practicar entre sesiones o para empezar a conocer estas herramientas. Si estás en crisis, ve a <button class="btn ghost" data-go2="ayuda" style="padding:0">Cuándo buscar ayuda</button>.</div>
+ <h3 style="margin-top:1.2rem">Tu privacidad</h3>
+ <p>Lo que escribes y marcas se guarda solo en este teléfono. No hay cuentas, no hay servidores que reciban tus datos y nadie, ni quien hizo la app, puede verlos. Por eso mismo, si borras la app se borran tus registros: guarda una copia de seguridad desde Noche de vez en cuando.</p>
+ ${first?`<div class="row" style="margin:1rem 0 1.6rem"><button class="btn" id="aceptoAviso">Entendido, empezar</button></div>`:""}
+ <h3 style="margin-top:1.2rem">Instalarla en el teléfono</h3>
+ <p class="muted small" style="margin:.2rem 0 0">iPhone, en Safari:</p>
+ <ol class="howto"><li>Abre el enlace de Refugio en Safari.</li><li>Toca Compartir y luego «Agregar a pantalla de inicio».</li><li>Ábrela siempre desde el ícono.</li></ol>
+ <p class="muted small" style="margin:.2rem 0 0">Android, en Chrome:</p>
+ <ol class="howto"><li>Abre el enlace de Refugio en Chrome.</li><li>Toca «Instalar app» cuando aparezca, o el menú ⋮ y «Instalar app».</li><li>La encuentras con tus demás aplicaciones.</li></ol>
+ <h3 style="margin-top:1.2rem">Compartir Refugio</h3>
+ <p class="small" style="margin:.2rem 0 0;word-break:break-all">${APP_URL}</p>
+ <img class="qr" src="qr.png" alt="Código QR con el enlace de Refugio">
+ <div class="row"><button class="btn soft" id="shareLink">Compartir enlace</button></div>
+ <h3 style="margin-top:1.6rem">De dónde viene</h3>
+ <p class="small">Las habilidades de DBT vienen del trabajo de Marsha Linehan. Las ideas estoicas, de Epicteto, Séneca y Marco Aurelio. Las prácticas budistas, de la tradición de atención plena y metta. Los textos de la app son adaptaciones breves, no citas textuales de manuales clínicos.</p>
+ ${first?"":`<div class="row" style="margin-top:1rem"><button class="btn ghost" data-go2="ayuda">Cuándo buscar ayuda</button></div>`}`;
 }
 
 function vPract(){
@@ -594,6 +719,12 @@ function bind(){
  document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{const t=store.get("checkins",[]).find(c=>c.d===todayKey());if(t){sel={emos:[...t.emos],lvl:t.lvl}}sub="edit";render()});
  document.querySelectorAll("[data-lesson]").forEach(b=>b.onclick=()=>{const [k,i]=b.dataset.lesson.split(":");go("aprender",k,+i)});
  document.querySelectorAll("[data-read]").forEach(b=>b.onclick=()=>{const r=store.get("lessons",{});r[b.dataset.read]=!r[b.dataset.read];store.set("lessons",r);toast(r[b.dataset.read]?"Leída":"Sin marcar");render()});
+ document.querySelectorAll("[data-go2]").forEach(b=>b.onclick=()=>{const from=view==="ayuda"?"hoy":view;saveControl();go(b.dataset.go2,from)});
+ const ac=$("#aceptoAviso");if(ac)ac.onclick=()=>{store.set("aviso",true);go("hoy")};
+ const sct=$("#saveContact");if(sct)sct.onclick=()=>{store.set("contacto",{n:$("#cn").value.trim(),t:$("#ct").value.trim()});toast("Guardado");render()};
+ const sl=$("#shareLink");if(sl)sl.onclick=async()=>{
+  try{if(navigator.share){await navigator.share({title:"Refugio",text:"Una app para practicar DBT, estoicismo y budismo.",url:APP_URL});return}}catch(e){if(e&&e.name==="AbortError")return}
+  try{await navigator.clipboard.writeText(APP_URL);toast("Enlace copiado")}catch(e){toast("Copia el enlace de arriba")}};
  document.querySelectorAll("[data-tick]").forEach(b=>b.onclick=()=>{const [id,v]=b.dataset.tick.split(":");setTick(todayKey(),id,v);render()});
  document.querySelectorAll("[data-hedit]").forEach(b=>b.onclick=()=>go("rumbo","edit"));
  const si=$("#saveIntent");if(si)si.onclick=()=>{const it=store.get("intents",{});const v=$("#intent").value.trim();if(v)it[todayKey()]=v;else delete it[todayKey()];store.set("intents",it);toast("Guardado");render()};
@@ -617,10 +748,11 @@ function bind(){
  const sk=$("#skipAfter");if(sk)sk.onclick=()=>{pending.after=null;saveSession();pending=null;go("hoy")};
  const fp=$("#finishP");if(fp)fp.onclick=()=>finishPractice(sub);
  const fpath=$("#finishPath");if(fpath)fpath.onclick=()=>finishPractice(sub);
- const np=$("#nextPath");if(np)np.onclick=()=>{saveControl();stepIdx++;pStep=0;stopBreath();render();window.scrollTo(0,0)};
+ const np=$("#nextPath");if(np)np.onclick=()=>{saveControl();stopTimer();stepIdx++;pStep=0;stopBreath();render();window.scrollTo(0,0)};
  const pn=$("#pNext");if(pn)pn.onclick=()=>{pStep++;render()};
  const pp=$("#pPrev");if(pp)pp.onclick=()=>{pStep--;render()};
  const bs=$("#bstart");if(bs)bs.onclick=startBreath;
+ const ts=$("#tstart");if(ts)ts.onclick=()=>{if(timerEnd){stopTimer();render()}else{const k=view==="ahora"?PATHS.find(x=>x.k===sub).seq[stepIdx]:sub;startTimer(PRACTICES[k].timer)}};
  const ex=$("#exportCsv");if(ex)ex.onclick=exportCSV;
  const bk=$("#backup");if(bk)bk.onclick=backup;
  const rf=$("#restoreFile");if(rf)rf.onchange=()=>restore(rf.files[0]);

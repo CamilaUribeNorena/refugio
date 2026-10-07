@@ -1,5 +1,5 @@
 // Refugio: funciona sin internet. Cambia la versión al publicar cambios.
-const VERSION = "refugio-v3";
+const VERSION = "refugio-v4";
 const CORE = ["./", "index.html", "manifest.webmanifest", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "qr.png"];
 
 self.addEventListener("install", e => {

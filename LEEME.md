@@ -3,8 +3,8 @@
 ## 1. Subirla a GitHub Pages (una sola vez, unos 10 minutos)
 
 1. Entra a github.com y crea un repositorio nuevo, por ejemplo `refugio`. Puede ser público; tus registros nunca salen del teléfono.
-2. En el repositorio, toca **Add file → Upload files** y arrastra los 6 archivos de esta carpeta:
-   `index.html`, `manifest.webmanifest`, `sw.js`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`.
+2. En el repositorio, toca **Add file → Upload files** y arrastra los 8 archivos de esta carpeta:
+   `index.html`, `manifest.webmanifest`, `sw.js`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `qr.png`.
    (Este LEEME no hace falta subirlo.) Luego **Commit changes**.
 3. Ve a **Settings → Pages**. En *Branch* elige `main` y carpeta `/ (root)`, y guarda.
 4. Espera uno o dos minutos. La dirección queda así: `https://TU-USUARIO.github.io/refugio/`
@@ -27,5 +27,5 @@
 ## 4. Cuando cambiemos algo de la app
 
 1. Sube el `index.html` nuevo al repositorio (reemplaza el anterior).
-2. En `sw.js`, cambia `refugio-v1` por `refugio-v2` (y así sucesivamente) y súbelo también.
+2. En `sw.js`, sube el número de `refugio-vN` (va en `refugio-v4`) y súbelo también.
 3. Abre la app con internet una vez y ciérrala; la siguiente vez abre la versión nueva. Tus datos no se tocan.

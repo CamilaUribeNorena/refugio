@@ -489,10 +489,11 @@ function habitStats(id){
  return{week,back};
 }
 function missedYesterday(){const t=ticks();const y=t[dayKey(1)]||{};const hs=habits();
- return Object.keys(t).length>0&&hs.some(h=>y[h.id]!=="full"&&y[h.id]!=="min")}
+ const first=Object.keys(t).sort()[0];return !!first&&first<dayKey(1)&&hs.some(h=>y[h.id]!=="full"&&y[h.id]!=="min")}
 
 /* ---------- estado ---------- */
 let view="hoy", sub=null, sub2=null, stepIdx=0, pStep=0, sel={emos:[],lvl:null,v:[]}, pending=null;
+let hDraft=null;const HMAX=6;
 let encSel={emo:null,fits:null,eff:null}, intSel={mode:"pedir",ans:{}};
 const app=document.getElementById("app");
 const $=s=>document.querySelector(s);
@@ -580,14 +581,31 @@ async function exportCSV(){
 
 /* ---------- copia de seguridad ---------- */
 const KEYS=["proscontras","checkins","sessions","control","nights","lessons","habits","ticks","intents","cadenas","encajas","plan","contacto"];
+/* devuelve true si el archivo salió (compartido o descargado) */
 async function shareOrDownload(name,text,type){
+ if(window.claude&&typeof window.claude.use==="function"){
+  let dl=null;try{dl=await window.claude.use("downloads")}catch(e){}
+  if(dl){try{await dl.save({filename:name,data:text});return true}catch(e){if(!(e&&e.code==="declined"))toast("No se pudo descargar aquí");return false}}
+ }
  const blob=new Blob([text],{type});
- try{const f=new File([blob],name,{type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"Refugio"});return}}catch(e){if(e&&e.name==="AbortError")return}
+ try{const f=new File([blob],name,{type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"Refugio"});return true}}catch(e){if(e&&e.name==="AbortError")return false}
  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
- setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+ setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);return true;
 }
-function backup(){const o={app:"refugio",v:1,fecha:todayKey()};KEYS.forEach(k=>{const v=store.get(k,null);if(v!=null)o[k]=v});
- shareOrDownload("refugio-copia-"+todayKey()+".json",JSON.stringify(o),"application/json")}
+async function backup(){const o={app:"refugio",v:1,fecha:todayKey()};KEYS.forEach(k=>{const v=store.get(k,null);if(v!=null)o[k]=v});
+ if(await shareOrDownload("refugio-copia-"+todayKey()+".json",JSON.stringify(o),"application/json")){store.set("lastBackup",todayKey());toast("Copia guardada");render()}}
+/* recordatorio de copia: hay registros y van 7 días o más sin copia */
+const daysSince=d=>Math.floor((new Date(todayKey()+"T12:00")-new Date(d+"T12:00"))/864e5);
+function backupDue(){
+ const dates=[...store.get("checkins",[]),...store.get("nights",[]),...store.get("sessions",[])].map(x=>x.d).filter(Boolean).sort();
+ if(!dates.length)return false;
+ return daysSince(store.get("lastBackup",null)||dates[0])>=7;
+}
+function backupCard(){
+ if(!backupDue())return "";const lb=store.get("lastBackup",null);
+ return `<div class="caution" style="background:var(--acc-soft);border-color:var(--acc-soft)"><b>Hora de guardar una copia</b>${lb?`Tu última copia es de hace ${daysSince(lb)} días.`:"Todavía no has guardado ninguna copia."} Tus registros viven solo en este teléfono: si se borra la app, se pierden. Guárdala en Archivos o en iCloud Drive.
+ <div class="row"><button class="btn soft" data-backup="1">Guardar copia ahora</button></div></div>`;
+}
 function restore(file){if(!file)return;const r=new FileReader();r.onload=()=>{
  try{const o=JSON.parse(r.result);if(o.app!=="refugio")throw 0;KEYS.forEach(k=>{if(o[k]!=null)store.set(k,o[k])});toast("Copia restaurada");go("hoy")}
  catch(e){toast("Ese archivo no es una copia de Refugio")}};r.readAsText(file)}
@@ -641,7 +659,7 @@ function todayDone(){
 function vHoy(){
  const day=Math.floor(Date.now()/864e5);const [q,by]=QUOTES[day%QUOTES.length];
  const checks=store.get("checkins",[]);const today=checks.find(c=>c.d===todayKey());
- const head=`<div class="toplinks"><button data-go2="ayuda">Ayuda</button><button data-go="acerca">Acerca de</button></div><p class="eyebrow">${greet()}</p><h1>Refugio</h1><p class="quote">${q}</p><p class="quote-by">${by}</p>`;
+ const head=`<div class="toplinks"><button data-go2="ayuda">Ayuda</button><button data-go="acerca">Acerca de</button></div><p class="eyebrow">${greet()}</p><h1>Refugio</h1><p class="quote">${q}</p><p class="quote-by">${by}</p>`+backupCard();
  if(today&&sub!=="edit"){
   const r=recommend(today.emos,today.lvl);const p=PRACTICES[r.key];
   return head+`<h3>Hoy llegaste con ${lista(today.emos)}, ${today.lvl} de 5.</h3>
@@ -741,17 +759,20 @@ function practBody(p){
 function vRumbo(){
  const hs=habits(),t=ticks(),today=t[todayKey()]||{};const intents=store.get("intents",{});const it=intents[todayKey()]||"";
  if(sub==="edit"){
-  return `<button class="back" data-go="rumbo">‹ Rumbo</button><p class="eyebrow">Hasta tres</p><h2>Mis compromisos</h2>
-  <p class="muted" style="margin-top:.6rem">Pocos y pequeños. Cada uno con su versión mínima, la que haces en un día malo para no soltar el hilo.</p>
-  <div class="habits">${[0,1,2].map(i=>{const h=hs[i]||{n:"",m:""};return `<div class="habit">
-   <label class="small muted" for="hn${i}">Compromiso ${i+1}</label><input class="field" id="hn${i}" value="${esc(h.ex?"":h.n)}" placeholder="${esc(h.ex?h.n:"Vacío si no lo necesitas")}">
-   <label class="small muted" for="hm${i}">Versión mínima</label><input class="field" id="hm${i}" value="${esc(h.ex?"":h.m)}" placeholder="${esc(h.ex?h.m:"Lo mínimo que cuenta")}"></div>`}).join("")}</div>
-  <div class="row"><button class="btn" id="saveHabits">Guardar</button><button class="btn ghost" data-go="rumbo">Cancelar</button></div>
-  <p class="muted small" style="margin-top:1rem">Si cambias un compromiso, sus días anteriores se conservan con su posición.</p>`;
+  if(!hDraft){const used=id=>Object.values(t).some(d=>d[id]);hDraft=hs.map(h=>h.ex&&used(h.id)?{id:h.id,n:h.n,m:h.m}:{...h})}
+  return `<button class="back" data-go="rumbo">‹ Rumbo</button><p class="eyebrow">Hasta ${HMAX}</p><h2>Mis compromisos</h2>
+  <p class="muted" style="margin-top:.6rem">Pequeños, y cada uno con su versión mínima: la que haces en un día malo para no soltar el hilo. Mientras más compromisos, más difícil sostenerlos todos.</p>
+  <div class="habits">${hDraft.map((h,i)=>`<div class="habit">
+   <div style="display:flex;justify-content:space-between;align-items:baseline"><label class="small muted" for="hn${i}">Compromiso ${i+1}</label><button class="btn ghost small" data-hdel="${i}" style="padding:0">Quitar</button></div>
+   <input class="field" id="hn${i}" data-hf="${i}:n" value="${esc(h.ex?"":h.n)}" placeholder="${esc(h.ex?h.n:"Qué te comprometes a hacer")}">
+   <label class="small muted" for="hm${i}">Versión mínima</label><input class="field" id="hm${i}" data-hf="${i}:m" value="${esc(h.ex?"":h.m)}" placeholder="${esc(h.ex?h.m:"Lo mínimo que cuenta")}"></div>`).join("")}</div>
+  ${hDraft.length<HMAX?`<div class="row"><button class="btn soft" id="addHabit">+ Agregar otro</button></div>`:`<p class="muted small">Ya tienes ${HMAX}, el máximo.</p>`}
+  <div class="row" style="margin-top:1rem"><button class="btn" id="saveHabits">Guardar</button><button class="btn ghost" data-go="rumbo">Cancelar</button></div>
+  <p class="muted small" style="margin-top:1rem">Si cambias el nombre de un compromiso, conserva sus días anteriores. Los ejemplos que dejes vacíos desaparecen al guardar.</p>`;
  }
  const done=hs.filter(h=>today[h.id]==="full"||today[h.id]==="min").length;
  return `<p class="eyebrow">${greet()}</p><h1>Rumbo</h1>
- <p class="muted" style="margin-top:.6rem">Una intención para el día y tres compromisos pequeños. No hay rachas que perder: cuenta volver.</p>
+ <p class="muted" style="margin-top:.6rem">Una intención para el día y unos pocos compromisos pequeños. No hay rachas que perder: cuenta volver.</p>
  ${missedYesterday()&&!done?`<div class="why">Ayer no se pudo con todo. Eso ya pasó y no se arregla hoy; hoy solo toca volver, aunque sea con la versión mínima.</div>`:""}
  <h3 style="margin-top:1.4rem">Intención de hoy</h3>
  <p class="muted small" style="margin:.2rem 0 .5rem">¿Qué depende de mí hoy? Una frase.</p>
@@ -878,7 +899,7 @@ function vNoche(){
  ${hist?`<h3 style="margin-top:2rem">Noches anteriores</h3>${hist}`:`<p class="muted" style="margin-top:2rem">Aquí irán apareciendo tus noches. Sin prisa.</p>`}
  <div class="row" style="margin-top:2.2rem"><button class="btn soft" id="exportCsv">Descargar mis registros (CSV)</button></div>
  <div class="row"><button class="btn ghost" id="backup">Guardar copia de seguridad</button><label class="btn ghost" for="restoreFile" style="cursor:pointer">Restaurar copia</label><input type="file" id="restoreFile" accept=".json,application/json" hidden></div>
- <p class="muted small" style="margin-top:.6rem">Llegadas, prácticas con su antes y después, dicotomías, análisis en cadena, intenciones, compromisos y noches. Todo vive solo en este teléfono; descárgalo de vez en cuando. La copia de seguridad sirve para pasar todo a otro teléfono.</p>`;
+ <p class="muted small" style="margin-top:.6rem">${store.get("lastBackup",null)?`Última copia: ${fmt(store.get("lastBackup"))}. `:"Todavía no hay copia de seguridad. "}Llegadas, prácticas con su antes y después, dicotomías, análisis en cadena, intenciones, compromisos y noches. Todo vive solo en este teléfono; descárgalo de vez en cuando. La copia de seguridad sirve para pasar todo a otro teléfono.</p>`;
 }
 
 /* ---------- eventos ---------- */
@@ -908,13 +929,15 @@ function bind(){
   try{if(navigator.share){await navigator.share({title:"Refugio",text:"Una app para practicar DBT, estoicismo y budismo.",url:APP_URL});return}}catch(e){if(e&&e.name==="AbortError")return}
   try{await navigator.clipboard.writeText(APP_URL);toast("Enlace copiado")}catch(e){toast("Copia el enlace de arriba")}};
  document.querySelectorAll("[data-tick]").forEach(b=>b.onclick=()=>{const [id,v]=b.dataset.tick.split(":");setTick(todayKey(),id,v);render()});
- document.querySelectorAll("[data-hedit]").forEach(b=>b.onclick=()=>go("rumbo","edit"));
+ document.querySelectorAll("[data-hedit]").forEach(b=>b.onclick=()=>{hDraft=null;go("rumbo","edit")});
  const si=$("#saveIntent");if(si)si.onclick=()=>{const it=store.get("intents",{});const v=$("#intent").value.trim();if(v)it[todayKey()]=v;else delete it[todayKey()];store.set("intents",it);toast("Guardado");render()};
- const sh=$("#saveHabits");if(sh)sh.onclick=()=>{const old=habits();const out=[];
-  for(let i=0;i<3;i++){const n=$("#hn"+i).value.trim(),m=$("#hm"+i).value.trim();const o=old[i];
-   if(n)out.push({id:"h"+(i+1),n,m:m||"Hacerlo un poco"});else if(o&&o.ex&&!m)out.push({id:o.id,n:o.n,m:o.m})}
+ document.querySelectorAll("[data-hf]").forEach(el=>el.oninput=()=>{const [i,k]=el.dataset.hf.split(":");const h=hDraft[+i];if(h.ex){h.ex=false;h.n="";h.m="";const o=$("#h"+(k==="n"?"m":"n")+i);if(o&&!o.value)o.placeholder=""}h[k]=el.value});
+ document.querySelectorAll("[data-hdel]").forEach(b=>b.onclick=()=>{hDraft.splice(+b.dataset.hdel,1);render()});
+ const ah=$("#addHabit");if(ah)ah.onclick=()=>{hDraft.push({id:"h"+Date.now().toString(36),n:"",m:""});render();const l=hDraft.length-1;const f=$("#hn"+l);if(f)f.focus()};
+ const sh=$("#saveHabits");if(sh)sh.onclick=()=>{
+  const out=hDraft.filter(h=>!h.ex&&h.n.trim()).map(h=>({id:h.id,n:h.n.trim(),m:h.m.trim()||"Hacerlo un poco"}));
   if(!out.length)return toast("Escribe al menos un compromiso");
-  store.set("habits",out.map(h=>({id:h.id,n:h.n,m:h.m})));toast("Guardado");go("rumbo")};
+  store.set("habits",out);hDraft=null;toast("Guardado");go("rumbo")};
  const sc=$("#saveCheck");if(sc)sc.onclick=()=>{
   if(!sel.emos.length||!sel.lvl)return toast("Marca al menos una emoción y su fuerza");
   const c=store.get("checkins",[]).filter(x=>x.d!==todayKey());
@@ -937,6 +960,7 @@ function bind(){
  const ts=$("#tstart");if(ts)ts.onclick=()=>{if(timerEnd){stopTimer();render()}else{const k=view==="ahora"?PATHS.find(x=>x.k===sub).seq[stepIdx]:sub;startTimer(PRACTICES[k].timer)}};
  const ex=$("#exportCsv");if(ex)ex.onclick=exportCSV;
  const bk=$("#backup");if(bk)bk.onclick=backup;
+ document.querySelectorAll("[data-backup]").forEach(b=>b.onclick=backup);
  const rf=$("#restoreFile");if(rf)rf.onchange=()=>restore(rf.files[0]);
 }
 /* migración de registros antiguos con una sola emoción */

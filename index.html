@@ -19,6 +19,7 @@
 :root{
   --bg:#F2E6E1; --bg2:#EAD9D2; --ink:#3A2C2C; --ink2:#7A6262; --line:#DBC6BE;
   --acc:#6E5F86; --acc-soft:#D8CFE3; --sage:#8FA08A; --sage-soft:#D9E0D4; --onacc:#fff;
+  --sun:#C9954A; --sun-soft:#F3DFC0; --onsun:#fff;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
@@ -26,12 +27,12 @@
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
     --bg:#2B2325; --bg2:#352B2E; --ink:#F0E6E1; --ink2:#B9A8A5; --line:#4A3D40;
-    --acc:#B9A8D6; --acc-soft:#4A3F5C; --sage:#A5B69F; --sage-soft:#3C4A3A; --onacc:#2B2325;
+    --acc:#B9A8D6; --acc-soft:#4A3F5C; --sage:#A5B69F; --sage-soft:#3C4A3A; --onacc:#2B2325; --sun:#E0B36E; --sun-soft:#4D3E2A; --onsun:#2B2325;
   }
 }
 :root[data-theme="dark"]{
   --bg:#2B2325; --bg2:#352B2E; --ink:#F0E6E1; --ink2:#B9A8A5; --line:#4A3D40;
-  --acc:#B9A8D6; --acc-soft:#4A3F5C; --sage:#A5B69F; --sage-soft:#3C4A3A; --onacc:#2B2325;
+  --acc:#B9A8D6; --acc-soft:#4A3F5C; --sage:#A5B69F; --sage-soft:#3C4A3A; --onacc:#2B2325; --sun:#E0B36E; --sun-soft:#4D3E2A; --onsun:#2B2325;
 }
 html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
 body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -108,6 +109,10 @@ textarea::placeholder{color:var(--ink2)}
 .week{display:flex;gap:.45rem;margin:.6rem 0 1.4rem}
 .week i{flex:1;height:2.2rem;border-radius:10px;background:var(--bg2);border:1px solid var(--line)}
 .week i.l1{background:var(--sage-soft)} .week i.l2{background:var(--sage)} .week i.l3{background:var(--acc-soft)} .week i.l4{background:var(--acc)} .week i.l5{background:var(--acc);border-color:var(--ink)}
+.week i.pos{background:var(--sun-soft);border-color:var(--sun)} .week i.pos.hi{background:var(--sun)}
+.chip.pos.on{background:var(--sun);border-color:var(--sun);color:var(--onsun)}
+.grp{font-size:.85rem;letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);margin:.9rem 0 -.2rem}
+.why.good{background:var(--sun-soft)}
 .toast{position:fixed;left:50%;bottom:calc(5.6rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:.6rem 1.1rem;border-radius:999px;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .toast.on{opacity:1}
 
@@ -180,8 +185,17 @@ const QUOTES=[
 ];
 
 /* ---------- emociones y recomendación ---------- */
-const EMOS=["Calma","Tristeza","Ansiedad","Rabia","Cansancio","Vergüenza","Vacío","Alegría"];
-const SINGLE={Calma:["metta","La calma es buen suelo para sembrar bondad."],Tristeza:["metta","La tristeza suele pedir compañía, no soluciones. Empieza contigo."],Ansiedad:["respirar","La ansiedad vive en la respiración corta. Alárgala y el cuerpo baja."],Rabia:["stop","La rabia va más rápido que tú. Primero frenar, después decidir."],Cansancio:["manos","Cuando no hay energía, que el cuerpo haga el trabajo: postura y respiración."],Vergüenza:["rain","La vergüenza crece en silencio. Reconocerla y nutrirte la encoge."],Vacío:["sentidos","El vacío es la mente lejos. Los sentidos te traen de vuelta."],Alegría:["vista","Míralo desde arriba también cuando es bueno: así se aprende a soltar."]};
+const NEG=["Tristeza","Ansiedad","Rabia","Cansancio","Vergüenza","Vacío"];
+const POS=["Calma","Alegría","Gratitud","Ternura","Entusiasmo","Orgullo","Esperanza","Alivio"];
+const EMOS=[...NEG,...POS];
+const isPos=e=>POS.includes(e);
+const SINGLE={Calma:["metta","La calma es buen suelo para sembrar bondad."],Tristeza:["metta","La tristeza suele pedir compañía, no soluciones. Empieza contigo."],Ansiedad:["respirar","La ansiedad vive en la respiración corta. Alárgala y el cuerpo baja."],Rabia:["stop","La rabia va más rápido que tú. Primero frenar, después decidir."],Cansancio:["manos","Cuando no hay energía, que el cuerpo haga el trabajo: postura y respiración."],Vergüenza:["rain","La vergüenza crece en silencio. Reconocerla y nutrirte la encoge."],Vacío:["sentidos","El vacío es la mente lejos. Los sentidos te traen de vuelta."],Alegría:["saborear","La alegría también se entrena: quedarte en ella un rato más hace que deje huella."],
+ Gratitud:["gratitud","Ponerle nombre a lo que agradeces lo vuelve algo a lo que puedes volver en un día difícil."],
+ Ternura:["metta","La ternura es metta que llegó sola. Déjala crecer y llévala más lejos."],
+ Entusiasmo:["saborear","El entusiasmo pide correr al siguiente paso. Primero quédate un momento en lo que ya hay."],
+ Orgullo:["gratitud","El orgullo merece registro: escribe qué hiciste tú para que esto pasara."],
+ Esperanza:["valores","La esperanza es energía hacia adelante. Conviértela en un paso pequeño hoy."],
+ Alivio:["saborear","El alivio se va rápido si no lo notas. Siente en el cuerpo lo que se soltó."]};
 
 /* reglas por combinación: [emociones requeridas, intensidad mínima, práctica, porqué] — la primera que encaje gana */
 const COMBOS=[
@@ -202,7 +216,7 @@ const COMBOS=[
 ];
 /* segunda salida: combinaciones en las que, además de la práctica, conviene hablar con alguien */
 function riskOf(emos,lvl){
- const has=e=>emos.includes(e);const neg=emos.filter(e=>e!=="Calma"&&e!=="Alegría");
+ const has=e=>emos.includes(e);const neg=emos.filter(e=>!isPos(e));
  if(!neg.length||lvl<4)return null;
  if(has("Vacío")&&(has("Vergüenza")||has("Tristeza")))return "Vacío con vergüenza o tristeza, y así de fuerte, es de las combinaciones que no conviene atravesar en soledad.";
  if(has("Rabia"))return "Rabia así de fuerte empuja a actuar rápido. Hablar con alguien mientras baja ayuda a no decidir en el pico.";
@@ -217,11 +231,16 @@ function riskCard(msg){return `<div class="caution" style="background:var(--acc-
 
 function recommend(emos,lvl){
  if(!emos.length)return null;
- if(emos.length>=3&&lvl>=4)return{key:"tipp",why:"Muchas emociones a la vez y fuertes: el cuerpo está desbordado. Primero bajar la intensidad, después entender.",path:"desbordada"};
+ const neg=emos.filter(e=>!isPos(e)),pos=emos.filter(isPos);
+ if(!neg.length){
+  if(pos.includes("Entusiasmo")&&lvl>=4)return{key:"sabia",why:"Un entusiasmo así de alto es precioso y también empuja a prometer de más. Disfrútalo, y antes de comprometerte con algo, pasa por la mente sabia.",good:true};
+  const [key,why]=SINGLE[pos[0]];return{key,why,good:true};
+ }
+ if(neg.length>=3&&lvl>=4)return{key:"tipp",why:"Muchas emociones a la vez y fuertes: el cuerpo está desbordado. Primero bajar la intensidad, después entender.",path:"desbordada"};
  if(lvl>=4&&emos.includes("Rabia"))return{key:"ola",why:"Rabia así de fuerte trae impulsos que piden actuar ya. Nada se decide en el pico de la ola: primero dejarla pasar.",path:"arder"};
  if(lvl>=5&&(emos.includes("Rabia")||emos.includes("Ansiedad")))return{key:"stop",why:"A esta intensidad no se decide nada. Solo frenar.",path:"desbordada"};
  for(const [req,min,key,why] of COMBOS){if(lvl>=min&&req.every(e=>emos.includes(e)))return{key,why}}
- const main=emos.find(e=>e!=="Calma")||emos[0];const [key,why]=SINGLE[main];return{key,why};
+ const main=neg[0];const [key,why]=SINGLE[main];return{key,why};
 }
 
 /* ---------- prácticas ---------- */
@@ -267,6 +286,17 @@ const PRACTICES={
    ["Para alguien querido","Trae su cara. Que estés a salvo. Que estés en paz. Que puedas vivir con soltura."],
    ["Para alguien neutro","Alguien que ves y no conoces. Las mismas frases. Nota qué cambia."],
    ["Para alguien difícil","Solo si puedes hoy. No es perdonar; es dejar de cargarlo."]]},
+ saborear:{n:"Saborear lo bueno",t:"3 min · DBT / budismo",d:"La mente se queda pegada a lo malo con facilidad y deja pasar lo bueno sin registrarlo. Quedarse unos segundos más en un buen momento es como guardarlo.",steps:[
+   ["Nómbralo","«Esto es alegría», «esto es alivio». Ponerle nombre también funciona con lo bueno."],
+   ["Encuéntralo en el cuerpo","¿Dónde se siente? Pecho abierto, hombros sueltos, una sonrisa que llegó sola. Quédate ahí."],
+   ["Quédate más","Unas cuantas respiraciones más de lo que harías normalmente. Sin hacer nada más: solo estar en esto."],
+   ["Suelta la preocupación","Si llega el «esto no va a durar» o el «no me lo merezco», nótalo y vuelve al momento. Esa voz no tiene que arruinarlo."],
+   ["Guárdalo","Elige un detalle concreto, una imagen, un olor o una frase, para poder volver a este momento después."]]},
+ gratitud:{n:"Tres cosas buenas",t:"4 min · estoicismo / budismo",d:"Los estoicos revisaban el día cada noche. Aquí se revisa lo que salió bien y qué parte pusiste tú.",steps:[
+   ["Tres cosas","Escribe o piensa en tres cosas buenas de hoy. Pequeñas valen igual: un café, una conversación, que no llovió."],
+   ["Por qué pasaron","Para cada una: ¿por qué pasó? ¿Qué hiciste tú, o quién te ayudó?"],
+   ["Agradece hacia afuera","Si alguien estuvo detrás de una de ellas, piensa en decírselo. Un mensaje corto basta."],
+   ["Recuerda que es prestado","Marco Aurelio decía que lo que amamos es prestado. No para entristecerte: para apreciarlo mientras está."]]},
  vista:{n:"Vista desde arriba",t:"4 min · estoicismo",d:"Alejar la cámara hasta que lo que te agobia recupere su tamaño real.",steps:[
    ["Tu cuarto","Mírate desde el techo. Una persona, una silla, un problema."],
    ["Tu ciudad","Sube. Miles de personas con sus propios problemas ahora mismo."],
@@ -373,7 +403,8 @@ const GROUPS=[
  ["crisis","Cuando todo va muy rápido",["stop","tipp","respirar","ola","pros","crisis"]],
  ["emociones","Emociones",["emocola","encaja","hechos","opuesta","problemas","anticipar","rain","cadena"]],
  ["relaciones","Relaciones",["dearman","give","vida","intensidad","validarme","metta"]],
- ["mente","Mente y aceptación",["sabia","pensamientos","sentidos","aceptar","manos","control","vista","premeditatio","valores"]],
+ ["bueno","Para lo bueno",["saborear","gratitud","valores"]],
+ ["mente","Mente y aceptación",["sabia","pensamientos","sentidos","aceptar","manos","control","vista","premeditatio"]],
 ];
 
 /* ¿Encaja con los hechos? (cuándo una emoción está justificada, acción opuesta y resolución de problemas) */
@@ -489,10 +520,11 @@ function habitStats(id){
  return{week,back};
 }
 function missedYesterday(){const t=ticks();const y=t[dayKey(1)]||{};const hs=habits();
- return Object.keys(t).length>0&&hs.some(h=>y[h.id]!=="full"&&y[h.id]!=="min")}
+ const first=Object.keys(t).sort()[0];return !!first&&first<dayKey(1)&&hs.some(h=>y[h.id]!=="full"&&y[h.id]!=="min")}
 
 /* ---------- estado ---------- */
 let view="hoy", sub=null, sub2=null, stepIdx=0, pStep=0, sel={emos:[],lvl:null,v:[]}, pending=null;
+let hDraft=null;const HMAX=6;
 let encSel={emo:null,fits:null,eff:null}, intSel={mode:"pedir",ans:{}};
 const app=document.getElementById("app");
 const $=s=>document.querySelector(s);
@@ -580,14 +612,31 @@ async function exportCSV(){
 
 /* ---------- copia de seguridad ---------- */
 const KEYS=["proscontras","checkins","sessions","control","nights","lessons","habits","ticks","intents","cadenas","encajas","plan","contacto"];
+/* devuelve true si el archivo salió (compartido o descargado) */
 async function shareOrDownload(name,text,type){
+ if(window.claude&&typeof window.claude.use==="function"){
+  let dl=null;try{dl=await window.claude.use("downloads")}catch(e){}
+  if(dl){try{await dl.save({filename:name,data:text});return true}catch(e){if(!(e&&e.code==="declined"))toast("No se pudo descargar aquí");return false}}
+ }
  const blob=new Blob([text],{type});
- try{const f=new File([blob],name,{type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"Refugio"});return}}catch(e){if(e&&e.name==="AbortError")return}
+ try{const f=new File([blob],name,{type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"Refugio"});return true}}catch(e){if(e&&e.name==="AbortError")return false}
  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
- setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+ setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);return true;
 }
-function backup(){const o={app:"refugio",v:1,fecha:todayKey()};KEYS.forEach(k=>{const v=store.get(k,null);if(v!=null)o[k]=v});
- shareOrDownload("refugio-copia-"+todayKey()+".json",JSON.stringify(o),"application/json")}
+async function backup(){const o={app:"refugio",v:1,fecha:todayKey()};KEYS.forEach(k=>{const v=store.get(k,null);if(v!=null)o[k]=v});
+ if(await shareOrDownload("refugio-copia-"+todayKey()+".json",JSON.stringify(o),"application/json")){store.set("lastBackup",todayKey());toast("Copia guardada");render()}}
+/* recordatorio de copia: hay registros y van 7 días o más sin copia */
+const daysSince=d=>Math.floor((new Date(todayKey()+"T12:00")-new Date(d+"T12:00"))/864e5);
+function backupDue(){
+ const dates=[...store.get("checkins",[]),...store.get("nights",[]),...store.get("sessions",[])].map(x=>x.d).filter(Boolean).sort();
+ if(!dates.length)return false;
+ return daysSince(store.get("lastBackup",null)||dates[0])>=7;
+}
+function backupCard(){
+ if(!backupDue())return "";const lb=store.get("lastBackup",null);
+ return `<div class="caution" style="background:var(--acc-soft);border-color:var(--acc-soft)"><b>Hora de guardar una copia</b>${lb?`Tu última copia es de hace ${daysSince(lb)} días.`:"Todavía no has guardado ninguna copia."} Tus registros viven solo en este teléfono: si se borra la app, se pierden. Guárdala en Archivos o en iCloud Drive.
+ <div class="row"><button class="btn soft" data-backup="1">Guardar copia ahora</button></div></div>`;
+}
 function restore(file){if(!file)return;const r=new FileReader();r.onload=()=>{
  try{const o=JSON.parse(r.result);if(o.app!=="refugio")throw 0;KEYS.forEach(k=>{if(o[k]!=null)store.set(k,o[k])});toast("Copia restaurada");go("hoy")}
  catch(e){toast("Ese archivo no es una copia de Refugio")}};r.readAsText(file)}
@@ -632,7 +681,8 @@ function renderNav(){
 }
 function greet(){const h=new Date().getHours();return h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches"}
 
-function weekBar(checks){return [...Array(7)].map((_,i)=>{const d=dayKey(6-i);const c=checks.find(x=>x.d===d);return c?`<i class="l${c.lvl}" title="${c.emos.join(", ")} ${c.lvl}"></i>`:"<i></i>"}).join("")}
+function weekBar(checks){return [...Array(7)].map((_,i)=>{const d=dayKey(6-i);const c=checks.find(x=>x.d===d);if(!c)return "<i></i>";const good=c.emos.length&&c.emos.every(isPos);return `<i class="${good?"pos"+(c.lvl>=4?" hi":""):"l"+c.lvl}" title="${c.emos.join(", ")} ${c.lvl}"></i>`}).join("")}
+function emoChips(selected,attr){const g=(t,list,cls)=>`<p class="grp">${t}</p><div class="chips">${list.map(e=>`<button class="chip ${cls} ${selected.includes(e)?"on":""}" data-${attr}="${e}">${e}</button>`).join("")}</div>`;return g("Lo difícil",NEG,"")+g("Lo bueno",POS,"pos")}
 function todayDone(){
  const s=store.get("sessions",[]).filter(x=>x.d===todayKey());if(!s.length)return "";
  return `<p class="muted small" style="margin-top:-.6rem;margin-bottom:1.2rem">Hoy: ${s.map(x=>esc(label(x.key))+(x.before!=null&&x.after!=null?` ${x.before}→${x.after}`:"")).join(" · ")}</p>`;
@@ -641,28 +691,28 @@ function todayDone(){
 function vHoy(){
  const day=Math.floor(Date.now()/864e5);const [q,by]=QUOTES[day%QUOTES.length];
  const checks=store.get("checkins",[]);const today=checks.find(c=>c.d===todayKey());
- const head=`<div class="toplinks"><button data-go2="ayuda">Ayuda</button><button data-go="acerca">Acerca de</button></div><p class="eyebrow">${greet()}</p><h1>Refugio</h1><p class="quote">${q}</p><p class="quote-by">${by}</p>`;
+ const head=`<div class="toplinks"><button data-go2="ayuda">Ayuda</button><button data-go="acerca">Acerca de</button></div><p class="eyebrow">${greet()}</p><h1>Refugio</h1><p class="quote">${q}</p><p class="quote-by">${by}</p>`+backupCard();
  if(today&&sub!=="edit"){
   const r=recommend(today.emos,today.lvl);const p=PRACTICES[r.key];
   return head+`<h3>Hoy llegaste con ${lista(today.emos)}, ${today.lvl} de 5.</h3>
   ${today.note?`<p class="muted">«${esc(today.note)}»</p>`:""}
   <div class="week">${weekBar(checks)}</div>${todayDone()}
-  <div class="why">${r.why}${(today.v||[]).length?`<br><span class="small">Y el cuerpo llega con carga: ${esc(lista(today.v))}. Eso sube la intensidad de todo; hoy bajar la exigencia y cuidarlo también es una habilidad.</span>`:""}</div>
+  <div class="why${r.good?" good":""}">${r.why}${!r.good&&today.emos.some(isPos)?`<br><span class="small">Y también hay ${esc(lista(today.emos.filter(isPos)).toLowerCase())}. No lo pierdas de vista: también es parte de cómo llegaste.</span>`:""}${(today.v||[]).length?`<br><span class="small">Y el cuerpo llega con carga: ${esc(lista(today.v))}. Eso sube la intensidad de todo; hoy bajar la exigencia y cuidarlo también es una habilidad.</span>`:""}</div>
   ${(()=>{const rk=riskOf(today.emos,today.lvl);return rk&&today.lvl>=5?riskCard(rk):""})()}
   <button class="path" data-pract="${r.key}"><h3>${p.n}</h3><span>${p.t}</span></button>
   ${r.path?`<button class="path" data-path="${r.path}"><h3>O el camino completo</h3><span>Tres prácticas seguidas, guiadas.</span></button>`:""}
   ${(()=>{const rk=riskOf(today.emos,today.lvl);return rk&&today.lvl<5?riskCard(rk):""})()}
   <button class="btn ghost" data-edit="1">Cambiar cómo llegué hoy</button>`;
  }
- return head+`<h3>¿Cómo llegas hoy?</h3><p class="muted">Puedes marcar varias. Casi siempre son varias.</p>
- <div class="chips">${EMOS.map(e=>`<button class="chip ${sel.emos.includes(e)?"on":""}" data-emo="${e}">${e}</button>`).join("")}</div>
+ return head+`<h3>¿Cómo llegas hoy?</h3><p class="muted">Puedes marcar varias, de los dos lados. Casi siempre son varias.</p>
+ ${emoChips(sel.emos,"emo")}
  <p class="muted">¿Con cuánta fuerza, en conjunto?</p>
  <div class="scale">${[1,2,3,4,5].map(n=>`<button class="${sel.lvl===n?"on":""}" data-lvl="${n}">${n}</button>`).join("")}</div>
  <p class="muted">¿Algo te hace más vulnerable hoy? <span class="small">(opcional)</span></p>
  <div class="chips">${VULN.map(e=>`<button class="chip ${sel.v.includes(e)?"on":""}" data-vul="${e}">${e}</button>`).join("")}</div>
  <textarea id="note" rows="2" placeholder="Una línea, si quieres. No es obligatoria.">${today?esc(today.note||""):""}</textarea>
  <div class="row"><button class="btn" id="saveCheck">Guardar</button></div>
- <div class="week" style="margin-top:1.6rem">${weekBar(checks)}</div><p class="muted">Tu semana. Sin metas, solo para verte.</p>${todayDone()}`;
+ <div class="week" style="margin-top:1.6rem">${weekBar(checks)}</div><p class="muted">Tu semana. Los días dorados fueron buenos. Sin metas, solo para verte.</p>${todayDone()}`;
 }
 
 function vAhora(){
@@ -741,17 +791,20 @@ function practBody(p){
 function vRumbo(){
  const hs=habits(),t=ticks(),today=t[todayKey()]||{};const intents=store.get("intents",{});const it=intents[todayKey()]||"";
  if(sub==="edit"){
-  return `<button class="back" data-go="rumbo">‹ Rumbo</button><p class="eyebrow">Hasta tres</p><h2>Mis compromisos</h2>
-  <p class="muted" style="margin-top:.6rem">Pocos y pequeños. Cada uno con su versión mínima, la que haces en un día malo para no soltar el hilo.</p>
-  <div class="habits">${[0,1,2].map(i=>{const h=hs[i]||{n:"",m:""};return `<div class="habit">
-   <label class="small muted" for="hn${i}">Compromiso ${i+1}</label><input class="field" id="hn${i}" value="${esc(h.ex?"":h.n)}" placeholder="${esc(h.ex?h.n:"Vacío si no lo necesitas")}">
-   <label class="small muted" for="hm${i}">Versión mínima</label><input class="field" id="hm${i}" value="${esc(h.ex?"":h.m)}" placeholder="${esc(h.ex?h.m:"Lo mínimo que cuenta")}"></div>`}).join("")}</div>
-  <div class="row"><button class="btn" id="saveHabits">Guardar</button><button class="btn ghost" data-go="rumbo">Cancelar</button></div>
-  <p class="muted small" style="margin-top:1rem">Si cambias un compromiso, sus días anteriores se conservan con su posición.</p>`;
+  if(!hDraft){const used=id=>Object.values(t).some(d=>d[id]);hDraft=hs.map(h=>h.ex&&used(h.id)?{id:h.id,n:h.n,m:h.m}:{...h})}
+  return `<button class="back" data-go="rumbo">‹ Rumbo</button><p class="eyebrow">Hasta ${HMAX}</p><h2>Mis compromisos</h2>
+  <p class="muted" style="margin-top:.6rem">Pequeños, y cada uno con su versión mínima: la que haces en un día malo para no soltar el hilo. Mientras más compromisos, más difícil sostenerlos todos.</p>
+  <div class="habits">${hDraft.map((h,i)=>`<div class="habit">
+   <div style="display:flex;justify-content:space-between;align-items:baseline"><label class="small muted" for="hn${i}">Compromiso ${i+1}</label><button class="btn ghost small" data-hdel="${i}" style="padding:0">Quitar</button></div>
+   <input class="field" id="hn${i}" data-hf="${i}:n" value="${esc(h.ex?"":h.n)}" placeholder="${esc(h.ex?h.n:"Qué te comprometes a hacer")}">
+   <label class="small muted" for="hm${i}">Versión mínima</label><input class="field" id="hm${i}" data-hf="${i}:m" value="${esc(h.ex?"":h.m)}" placeholder="${esc(h.ex?h.m:"Lo mínimo que cuenta")}"></div>`).join("")}</div>
+  ${hDraft.length<HMAX?`<div class="row"><button class="btn soft" id="addHabit">+ Agregar otro</button></div>`:`<p class="muted small">Ya tienes ${HMAX}, el máximo.</p>`}
+  <div class="row" style="margin-top:1rem"><button class="btn" id="saveHabits">Guardar</button><button class="btn ghost" data-go="rumbo">Cancelar</button></div>
+  <p class="muted small" style="margin-top:1rem">Si cambias el nombre de un compromiso, conserva sus días anteriores. Los ejemplos que dejes vacíos desaparecen al guardar.</p>`;
  }
  const done=hs.filter(h=>today[h.id]==="full"||today[h.id]==="min").length;
  return `<p class="eyebrow">${greet()}</p><h1>Rumbo</h1>
- <p class="muted" style="margin-top:.6rem">Una intención para el día y tres compromisos pequeños. No hay rachas que perder: cuenta volver.</p>
+ <p class="muted" style="margin-top:.6rem">Una intención para el día y unos pocos compromisos pequeños. No hay rachas que perder: cuenta volver.</p>
  ${missedYesterday()&&!done?`<div class="why">Ayer no se pudo con todo. Eso ya pasó y no se arregla hoy; hoy solo toca volver, aunque sea con la versión mínima.</div>`:""}
  <h3 style="margin-top:1.4rem">Intención de hoy</h3>
  <p class="muted small" style="margin:.2rem 0 .5rem">¿Qué depende de mí hoy? Una frase.</p>
@@ -839,7 +892,7 @@ function vDespues(){
  return `<p class="eyebrow">${isPath?"Después del camino «"+esc(label(pending.key))+"»":"Después de "+esc(label(pending.key))}</p><h1>¿Cómo estás ahora?</h1>
  <p class="muted">No es una calificación. Es para saber, con el tiempo, qué te sirve a ti.</p>
  ${pending.before==null&&!pending.emos.length?`<h3 style="margin-top:1rem">¿Con qué llegaste? <span class="muted small" style="font-weight:400">(opcional)</span></h3>
- <div class="chips">${EMOS.map(e=>`<button class="chip ${pending.emos.includes(e)?"on":""}" data-emo2="${e}">${e}</button>`).join("")}</div>`:""}
+ ${emoChips(pending.emos,"emo2")}`:""}
  <h3 style="margin-top:1rem">Antes de la práctica</h3>${scale("b",pending.before)}
  <h3 style="margin-top:.6rem">Ahora</h3>${scale("a",pending.after)}
  <div class="row"><button class="btn" id="saveAfter">Guardar</button><button class="btn ghost" id="skipAfter">Ahora no</button></div>`;
@@ -878,7 +931,7 @@ function vNoche(){
  ${hist?`<h3 style="margin-top:2rem">Noches anteriores</h3>${hist}`:`<p class="muted" style="margin-top:2rem">Aquí irán apareciendo tus noches. Sin prisa.</p>`}
  <div class="row" style="margin-top:2.2rem"><button class="btn soft" id="exportCsv">Descargar mis registros (CSV)</button></div>
  <div class="row"><button class="btn ghost" id="backup">Guardar copia de seguridad</button><label class="btn ghost" for="restoreFile" style="cursor:pointer">Restaurar copia</label><input type="file" id="restoreFile" accept=".json,application/json" hidden></div>
- <p class="muted small" style="margin-top:.6rem">Llegadas, prácticas con su antes y después, dicotomías, análisis en cadena, intenciones, compromisos y noches. Todo vive solo en este teléfono; descárgalo de vez en cuando. La copia de seguridad sirve para pasar todo a otro teléfono.</p>`;
+ <p class="muted small" style="margin-top:.6rem">${store.get("lastBackup",null)?`Última copia: ${fmt(store.get("lastBackup"))}. `:"Todavía no hay copia de seguridad. "}Llegadas, prácticas con su antes y después, dicotomías, análisis en cadena, intenciones, compromisos y noches. Todo vive solo en este teléfono; descárgalo de vez en cuando. La copia de seguridad sirve para pasar todo a otro teléfono.</p>`;
 }
 
 /* ---------- eventos ---------- */
@@ -908,13 +961,15 @@ function bind(){
   try{if(navigator.share){await navigator.share({title:"Refugio",text:"Una app para practicar DBT, estoicismo y budismo.",url:APP_URL});return}}catch(e){if(e&&e.name==="AbortError")return}
   try{await navigator.clipboard.writeText(APP_URL);toast("Enlace copiado")}catch(e){toast("Copia el enlace de arriba")}};
  document.querySelectorAll("[data-tick]").forEach(b=>b.onclick=()=>{const [id,v]=b.dataset.tick.split(":");setTick(todayKey(),id,v);render()});
- document.querySelectorAll("[data-hedit]").forEach(b=>b.onclick=()=>go("rumbo","edit"));
+ document.querySelectorAll("[data-hedit]").forEach(b=>b.onclick=()=>{hDraft=null;go("rumbo","edit")});
  const si=$("#saveIntent");if(si)si.onclick=()=>{const it=store.get("intents",{});const v=$("#intent").value.trim();if(v)it[todayKey()]=v;else delete it[todayKey()];store.set("intents",it);toast("Guardado");render()};
- const sh=$("#saveHabits");if(sh)sh.onclick=()=>{const old=habits();const out=[];
-  for(let i=0;i<3;i++){const n=$("#hn"+i).value.trim(),m=$("#hm"+i).value.trim();const o=old[i];
-   if(n)out.push({id:"h"+(i+1),n,m:m||"Hacerlo un poco"});else if(o&&o.ex&&!m)out.push({id:o.id,n:o.n,m:o.m})}
+ document.querySelectorAll("[data-hf]").forEach(el=>el.oninput=()=>{const [i,k]=el.dataset.hf.split(":");const h=hDraft[+i];if(h.ex){h.ex=false;h.n="";h.m="";const o=$("#h"+(k==="n"?"m":"n")+i);if(o&&!o.value)o.placeholder=""}h[k]=el.value});
+ document.querySelectorAll("[data-hdel]").forEach(b=>b.onclick=()=>{hDraft.splice(+b.dataset.hdel,1);render()});
+ const ah=$("#addHabit");if(ah)ah.onclick=()=>{hDraft.push({id:"h"+Date.now().toString(36),n:"",m:""});render();const l=hDraft.length-1;const f=$("#hn"+l);if(f)f.focus()};
+ const sh=$("#saveHabits");if(sh)sh.onclick=()=>{
+  const out=hDraft.filter(h=>!h.ex&&h.n.trim()).map(h=>({id:h.id,n:h.n.trim(),m:h.m.trim()||"Hacerlo un poco"}));
   if(!out.length)return toast("Escribe al menos un compromiso");
-  store.set("habits",out.map(h=>({id:h.id,n:h.n,m:h.m})));toast("Guardado");go("rumbo")};
+  store.set("habits",out);hDraft=null;toast("Guardado");go("rumbo")};
  const sc=$("#saveCheck");if(sc)sc.onclick=()=>{
   if(!sel.emos.length||!sel.lvl)return toast("Marca al menos una emoción y su fuerza");
   const c=store.get("checkins",[]).filter(x=>x.d!==todayKey());
@@ -937,6 +992,7 @@ function bind(){
  const ts=$("#tstart");if(ts)ts.onclick=()=>{if(timerEnd){stopTimer();render()}else{const k=view==="ahora"?PATHS.find(x=>x.k===sub).seq[stepIdx]:sub;startTimer(PRACTICES[k].timer)}};
  const ex=$("#exportCsv");if(ex)ex.onclick=exportCSV;
  const bk=$("#backup");if(bk)bk.onclick=backup;
+ document.querySelectorAll("[data-backup]").forEach(b=>b.onclick=backup);
  const rf=$("#restoreFile");if(rf)rf.onchange=()=>restore(rf.files[0]);
 }
 /* migración de registros antiguos con una sola emoción */
